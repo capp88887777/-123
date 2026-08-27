@@ -26,6 +26,7 @@
         .form-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
         .form-row input, .form-row select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
         .btn-submit { background: #b8860b; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-cancel { background: #666; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; display: none; }
         .btn-download { background: #2e7d32; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-left: auto; }
         .member-list { list-style: none; padding: 0; margin: 0; }
         .member-item { display: flex; align-items: center; padding: 15px 10px; border-bottom: 1px solid #eee; }
@@ -37,7 +38,9 @@
         .name-line span { font-size: 16px; font-weight: normal; color: #555; }
         .detail-line { font-size: 13px; color: #777; }
         .admin-actions { display: flex; gap: 5px; margin-left: 10px; }
-        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-edit { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .guide-text { text-align: center; color: #888; padding: 25px; font-size: 14px; background: #fafafa; border-radius: 6px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -54,14 +57,14 @@
 <div class="content">
     <div class="search-box">
         <select id="searchKing" class="search-select">
-            <option value="">사천왕 전체</option>
+            <option value="">사천왕을 선택해주세요</option>
             <option value="지국천왕">지국천왕</option>
             <option value="다문천왕">다문천왕</option>
             <option value="광목천왕">광목천왕</option>
             <option value="증장천왕">증장천왕</option>
             <option value="보유 없음">보유 없음</option>
         </select>
-        <input type="text" id="searchInput" class="search-input" placeholder="🔎 검색어 입력 (닉네임/직책 등)..." autocomplete="off">
+        <input type="text" id="searchInput" class="search-input" placeholder="명단 검색 (닉네임/직책 등)..." autocomplete="off">
     </div>
 
     <div id="pwBox" class="pw-box">
@@ -71,7 +74,8 @@
     </div>
 
     <div id="adminPanel" class="admin-panel">
-        <h3>🛠️ 상단원 정보 관리</h3>
+        <h3 id="panelTitle">🛠️ 상단원 정보 관리 (등록 모드)</h3>
+        <input type="hidden" id="editIndex" value="">
         <div class="form-row">
             <select id="addPosition">
                 <option value="임원진">임원진</option>
@@ -92,6 +96,7 @@
             <label><input type="checkbox" id="check2nd"> 2차 완료</label>
             <label><input type="checkbox" id="checkAwaken"> 각성 완료</label>
             <button class="btn-submit" id="submitBtn" type="button">등록하기</button>
+            <button class="btn-cancel" id="cancelBtn" type="button">취소</button>
             <button class="btn-download" id="downloadBtn" type="button">📥 명단 엑셀 다운로드</button>
         </div>
     </div>
@@ -139,15 +144,23 @@
         execContainer.innerHTML = '';
         regContainer.innerHTML = '';
 
-        var keyword = (document.getElementById('searchInput').value || '').toLowerCase();
+        var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
         var selectedKing = document.getElementById('searchKing').value;
+
+        // 사천왕을 선택하거나 검색어를 입력해야만 명단 표시
+        if (!selectedKing && !keyword) {
+            execContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>';
+            regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>';
+            document.getElementById('executiveCount').innerText = '(00)';
+            document.getElementById('regularCount').innerText = '(00)';
+            return;
+        }
+
         var execCount = 0, regCount = 0;
 
         members.forEach(function(member, index) {
-            // 사천왕 필터 체크
             if (selectedKing && member.king !== selectedKing) return;
 
-            // 검색어 필터 체크
             var text = [member.name, member.subs, member.duty, member.king].join(' ').toLowerCase();
             if (keyword && text.indexOf(keyword) === -1) return;
 
@@ -156,7 +169,16 @@
 
             var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
             var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
-            var actionBtns = isAdminLoggedIn() ? '<div class="admin-actions"><button class="btn-delete" type="button" onclick="deleteMember(\'' + (member.id || index) + '\')">삭제</button></div>' : '';
+            
+            // 관리자 모드일 때만 수정/삭제 버튼 노출
+            var actionBtns = '';
+            if (isAdminLoggedIn()) {
+                var uniqueId = member.id || index;
+                actionBtns = '<div class="admin-actions">' +
+                    '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                    '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                    '</div>';
+            }
 
             li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
                 '<div class="info-box"><div class="name-line">' + (member.name||'') + ' <span>/' + (member.subs||'없음') + '</span></div>' +
@@ -180,31 +202,80 @@
         var name = document.getElementById('addName').value.trim();
         if (!name) return alert('닉네임을 입력하세요.');
 
-        var newMember = {
-            id: 'id_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2, 5),
-            name: name,
-            subs: document.getElementById('addSubs').value.trim(),
-            duty: document.getElementById('addDuty').value.trim(),
-            king: document.getElementById('addKing').value,
-            position: document.getElementById('addPosition').value,
-            is2nd: document.getElementById('check2nd').checked,
-            isAwaken: document.getElementById('checkAwaken').checked
-        };
+        var editIdx = document.getElementById('editIndex').value;
 
-        members.push(newMember);
+        if (editIdx !== '') {
+            // 수정 모드
+            var target = members.find(function(m) { return String(m.id || members.indexOf(m)) === String(editIdx); });
+            if (target) {
+                target.name = name;
+                target.subs = document.getElementById('addSubs').value.trim();
+                target.duty = document.getElementById('addDuty').value.trim();
+                target.king = document.getElementById('addKing').value;
+                target.position = document.getElementById('addPosition').value;
+                target.is2nd = document.getElementById('check2nd').checked;
+                target.isAwaken = document.getElementById('checkAwaken').checked;
+            }
+            alert('수정되었습니다!');
+            resetForm();
+        } else {
+            // 신규 등록 모드
+            var newMember = {
+                id: 'id_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2, 5),
+                name: name,
+                subs: document.getElementById('addSubs').value.trim(),
+                duty: document.getElementById('addDuty').value.trim(),
+                king: document.getElementById('addKing').value,
+                position: document.getElementById('addPosition').value,
+                is2nd: document.getElementById('check2nd').checked,
+                isAwaken: document.getElementById('checkAwaken').checked
+            };
+            members.push(newMember);
+            alert('등록되었습니다!');
+            document.getElementById('addName').value = '';
+            document.getElementById('addSubs').value = '';
+            document.getElementById('addDuty').value = '';
+        }
+
         renderLists();
         saveMemberData();
+    }
 
+    function editMember(targetId) {
+        var member = members.find(function(m) { return String(m.id || members.indexOf(m)) === String(targetId); });
+        if (!member) return;
+
+        document.getElementById('editIndex').value = targetId;
+        document.getElementById('addPosition').value = member.position || '상단명단';
+        document.getElementById('addName').value = member.name || '';
+        document.getElementById('addSubs').value = member.subs || '';
+        document.getElementById('addDuty').value = member.duty || '';
+        document.getElementById('addKing').value = member.king || '보유 없음';
+        document.getElementById('check2nd').checked = !!member.is2nd;
+        document.getElementById('checkAwaken').checked = !!member.isAwaken;
+
+        document.getElementById('panelTitle').innerText = '🛠️ 상단원 정보 관리 (수정 모드)';
+        document.getElementById('submitBtn').innerText = '수정 완료';
+        document.getElementById('cancelBtn').style.display = 'inline-block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+        document.getElementById('editIndex').value = '';
         document.getElementById('addName').value = '';
         document.getElementById('addSubs').value = '';
         document.getElementById('addDuty').value = '';
-        alert('등록되었습니다!');
+        document.getElementById('check2nd').checked = false;
+        document.getElementById('checkAwaken').checked = false;
+        document.getElementById('panelTitle').innerText = '🛠️ 상단원 정보 관리 (등록 모드)';
+        document.getElementById('submitBtn').innerText = '등록하기';
+        document.getElementById('cancelBtn').style.display = 'none';
     }
 
     function deleteMember(targetId) {
         if (confirm("정말 삭제하시겠습니까?")) {
             members = members.filter(function(m) {
-                return String(m.id) !== String(targetId) && String(members.indexOf(m)) !== String(targetId);
+                return String(m.id || members.indexOf(m)) !== String(targetId);
             });
             renderLists();
             saveMemberData();
@@ -256,6 +327,7 @@
         });
 
         document.getElementById('submitBtn').addEventListener('click', saveMember);
+        document.getElementById('cancelBtn').addEventListener('click', resetForm);
         document.getElementById('downloadBtn').addEventListener('click', downloadExcel);
         document.getElementById('searchInput').addEventListener('input', renderLists);
         document.getElementById('searchKing').addEventListener('change', renderLists);
