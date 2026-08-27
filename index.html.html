@@ -14,8 +14,9 @@
         .admin-btn-container { margin-top: 15px; text-align: center; }
         .admin-btn { background: #b8860b; color: #fff; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
         .content { max-width: 800px; margin: 3px auto; padding: 20px; }
-        .search-box { margin: 5px 0 20px 0; position: relative; }
-        .search-input { width: 100%; padding: 13px 45px 13px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; background: #fafafa; }
+        .search-box { display: flex; gap: 10px; margin: 5px 0 20px 0; }
+        .search-input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; background: #fafafa; }
+        .search-select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; background: #fafafa; }
         .section-title { font-size: 18px; font-weight: bold; color: #b8860b; margin-top: 30px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .member-count { font-size: 15px; color: #777; font-weight: bold; margin-left: 4px; }
         .pw-box { display: none; background: #fff; border: 2px solid #b8860b; padding: 15px; text-align: center; max-width: 300px; margin: 15px auto; border-radius: 6px; }
@@ -44,7 +45,7 @@
 <div class="header">
     <div class="title-main">大韓民國 상단</div>
     <div class="server-tag">현무서버</div>
-    <div class="title-sub">大韓國 상단 사천왕 보유 현황</div>
+    <div class="title-sub">大韓民國 상단 사천왕 보유 현황</div>
     <div class="admin-btn-container">
         <button class="admin-btn" id="loginBtn" type="button">⚙️ 관리자 인증 모드</button>
     </div>
@@ -52,7 +53,15 @@
 
 <div class="content">
     <div class="search-box">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔎 검색어 입력..." autocomplete="off">
+        <select id="searchKing" class="search-select">
+            <option value="">사천왕 전체</option>
+            <option value="지국천왕">지국천왕</option>
+            <option value="다문천왕">다문천왕</option>
+            <option value="광목천왕">광목천왕</option>
+            <option value="증장천왕">증장천왕</option>
+            <option value="보유 없음">보유 없음</option>
+        </select>
+        <input type="text" id="searchInput" class="search-input" placeholder="🔎 검색어 입력 (닉네임/직책 등)..." autocomplete="off">
     </div>
 
     <div id="pwBox" class="pw-box">
@@ -131,9 +140,14 @@
         regContainer.innerHTML = '';
 
         var keyword = (document.getElementById('searchInput').value || '').toLowerCase();
+        var selectedKing = document.getElementById('searchKing').value;
         var execCount = 0, regCount = 0;
 
         members.forEach(function(member, index) {
+            // 사천왕 필터 체크
+            if (selectedKing && member.king !== selectedKing) return;
+
+            // 검색어 필터 체크
             var text = [member.name, member.subs, member.duty, member.king].join(' ').toLowerCase();
             if (keyword && text.indexOf(keyword) === -1) return;
 
@@ -177,11 +191,8 @@
             isAwaken: document.getElementById('checkAwaken').checked
         };
 
-        // 즉시 화면 반영 (Optimistic UI)
         members.push(newMember);
         renderLists();
-
-        // 백그라운드 서버 저장
         saveMemberData();
 
         document.getElementById('addName').value = '';
@@ -195,9 +206,7 @@
             members = members.filter(function(m) {
                 return String(m.id) !== String(targetId) && String(members.indexOf(m)) !== String(targetId);
             });
-            // 즉시 화면 반영
             renderLists();
-            // 백그라운드 서버 저장
             saveMemberData();
         }
     }
@@ -249,6 +258,7 @@
         document.getElementById('submitBtn').addEventListener('click', saveMember);
         document.getElementById('downloadBtn').addEventListener('click', downloadExcel);
         document.getElementById('searchInput').addEventListener('input', renderLists);
+        document.getElementById('searchKing').addEventListener('change', renderLists);
     });
 </script>
 </body>
