@@ -310,14 +310,27 @@
         loadMemberData();
         
         document.getElementById('loginBtn').addEventListener('click', function() {
-            var pwBox = document.getElementById('pwBox');
-            pwBox.style.display = pwBox.style.display === 'block' ? 'none' : 'block';
+            if (isAdminLoggedIn()) {
+                // 이미 로그인 상태면 버튼 클릭 시 관리자 모드 종료 (로그아웃 처리)
+                sessionStorage.removeItem('is_admin');
+                document.getElementById('adminPanel').style.display = 'none';
+                document.getElementById('pwBox').style.display = 'none';
+                document.getElementById('adminPw').value = '';
+                document.getElementById('loginBtn').innerText = '⚙️ 관리자 인증 모드';
+                resetForm();
+                renderLists();
+            } else {
+                // 로그아웃 상태면 비밀번호 입력창 토글
+                var pwBox = document.getElementById('pwBox');
+                pwBox.style.display = pwBox.style.display === 'block' ? 'none' : 'block';
+            }
         });
 
         document.getElementById('pwSubmitBtn').addEventListener('click', function() {
             if (document.getElementById('adminPw').value === '1357') {
                 sessionStorage.setItem('is_admin', 'true');
                 document.getElementById('pwBox').style.display = 'none';
+                document.getElementById('adminPw').value = '';
                 document.getElementById('adminPanel').style.display = 'block';
                 document.getElementById('loginBtn').innerText = '🔒 관리자 모드 종료';
                 renderLists();
