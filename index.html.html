@@ -229,10 +229,17 @@
                 
                 execGrid.appendChild(card);
             } else {
+                // 천왕 선택 필터와 검색어 입력 필터 동시(AND) 적용
                 var isMatch = true;
-                if (selectedKing && member.king !== selectedKing) isMatch = false;
-                var text = [member.name, member.subs, member.duty, member.king].join(' ').toLowerCase();
-                if (keyword && text.indexOf(keyword) === -1) isMatch = false;
+                if (selectedKing && member.king !== selectedKing) {
+                    isMatch = false;
+                }
+                if (keyword) {
+                    var text = [member.name, member.subs, member.duty, member.king].join(' ').toLowerCase();
+                    if (text.indexOf(keyword) === -1) {
+                        isMatch = false;
+                    }
+                }
 
                 if (isMatch) {
                     var li = document.createElement('li');
@@ -263,12 +270,10 @@
         }
 
         if (regContainer.children.length === 0) {
-            regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>';
+            regContainer.innerHTML = '<div class="guide-text">조건에 일치하는 상단원이 없습니다.</div>';
         }
 
-        // 01 임원진 숫자 (임원진 인원수만)
         document.getElementById('executiveCount').innerText = '(' + execCount + '명)';
-        // 02 상단명단 숫자 (임원진 + 일반 상단원 전체 총인원)
         document.getElementById('totalCount').innerText = '(' + members.length + '명)';
     }
 
