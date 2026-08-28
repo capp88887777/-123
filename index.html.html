@@ -139,7 +139,9 @@
         </select>
     </div>
 
-    <ul id="regularList" class="member-list"></ul>
+    <ul id="regularList" class="member-list">
+        <div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>
+    </ul>
 </div>
 
 <script>
@@ -199,7 +201,6 @@
         var execGrid = document.getElementById('executiveGrid');
         var regContainer = document.getElementById('regularList');
         execGrid.innerHTML = '';
-        regContainer.innerHTML = '';
 
         var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
         var selectedKing = document.getElementById('searchKing').value;
@@ -228,40 +229,6 @@
                     '<div class="exec-subinfo">부캐: ' + (member.subs || '없음') + ' | ' + (member.king || '') + '</div>';
                 
                 execGrid.appendChild(card);
-            } else {
-                // 천왕 선택 필터와 검색어 입력 필터 동시(AND) 적용
-                var isMatch = true;
-                if (selectedKing && member.king !== selectedKing) {
-                    isMatch = false;
-                }
-                if (keyword) {
-                    var text = [member.name, member.subs, member.duty, member.king].join(' ').toLowerCase();
-                    if (text.indexOf(keyword) === -1) {
-                        isMatch = false;
-                    }
-                }
-
-                if (isMatch) {
-                    var li = document.createElement('li');
-                    li.className = 'member-item';
-
-                    var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
-                    var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
-                    
-                    var actionBtns = '';
-                    if (isAdminLoggedIn()) {
-                        actionBtns = '<div class="admin-actions">' +
-                            '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
-                            '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
-                            '</div>';
-                    }
-
-                    li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
-                        '<div class="info-box"><div class="name-line">' + (member.name||'') + ' <span>/' + (member.subs||'없음') + '</span></div>' +
-                        '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
-
-                    regContainer.appendChild(li);
-                }
             }
         });
 
@@ -269,8 +236,55 @@
             execGrid.innerHTML = '<div class="guide-text" style="grid-column: 1/-1;">등록된 임원진이 없습니다.</div>';
         }
 
-        if (regContainer.children.length === 0) {
-            regContainer.innerHTML = '<div class="guide-text">조건에 일치하는 상단원이 없습니다.</div>';
+        // 검색어나 천왕 선택이 아예 없는 초기 상태인 경우 목록을 비워둠
+        if (!keyword && !selectedKing) {
+            regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>';
+        } else {
+            regContainer.innerHTML = '';
+            var matchCount = 0;
+
+            members.forEach(function(member, index) {
+                if (member.position !== '임원진') {
+                    var isMatch = true;
+                    if (selectedKing && member.king !== selectedKing) {
+                        isMatch = false;
+                    }
+                    if (keyword) {
+                        var text = [member.name, member.subs, member.duty, member.king].join(' ').toLowerCase();
+                        if (text.indexOf(keyword) === -1) {
+                            isMatch = false;
+                        }
+                    }
+
+                    if (isMatch) {
+                        matchCount++;
+                        var uniqueId = member.id || index;
+                        var li = document.createElement('li');
+                        li.className = 'member-item';
+
+                        var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
+                        var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
+                        
+                        var actionBtns = '';
+                        if (isAdminLoggedIn()) {
+                            actionBtns = '<div class="admin-actions">' +
+                                '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                                '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                                '</div>';
+                        }
+
+                        li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
+                            '<div class="info-box"><div class="name-line">' + (member.name||'') + ' <span>/' + (member.subs||'없음') + '</span></div>' +
+                            '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
+
+                        regContainer.appendChild(li);
+                    }
+                }
+            });
+
+            if (matchCount === 0) {
+                regContainer.innerHTML = '<div class="guide-text">조건에 일치하는 상단원이 없습니다.</div>';
+            }
         }
 
         document.getElementById('executiveCount').innerText = '(' + execCount + '명)';
