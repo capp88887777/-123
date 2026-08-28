@@ -13,12 +13,32 @@
         .title-sub { font-size: 22px; font-weight: bold; color: #eee; }
         .admin-btn-container { margin-top: 15px; text-align: center; }
         .admin-btn { background: #b8860b; color: #fff; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; }
-        .content { max-width: 800px; margin: 3px auto; padding: 20px; }
-        .search-box { display: flex; gap: 10px; margin: 5px 0 20px 0; }
-        .search-input { flex-grow: 1; padding: 10px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; background: #fafafa; }
-        .search-select { padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; background: #fafafa; }
-        .section-title { font-size: 18px; font-weight: bold; color: #b8860b; margin-top: 30px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .member-count { font-size: 15px; color: #777; font-weight: bold; margin-left: 4px; }
+        
+        .content { max-width: 900px; margin: 20px auto; padding: 20px; }
+        
+        .section-title { font-size: 18px; font-weight: bold; color: #b8860b; margin-top: 35px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; align-items: center; }
+        .member-count { font-size: 16px; color: #777; font-weight: bold; margin-left: 6px; }
+
+        .exec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        @media(max-width: 768px) { .exec-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 480px) { .exec-grid { grid-template-columns: 1fr; } }
+        
+        .exec-card { background-color: #fff; border: 1px solid #d4c4a8; padding: 12px 15px; text-align: center; border-radius: 2px; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .exec-name { font-size: 16px; font-weight: bold; color: #222; margin-bottom: 4px; }
+        .exec-duty { font-size: 13px; color: #666; }
+        .exec-subinfo { font-size: 11px; color: #888; margin-top: 2px; }
+        .exec-admin-btns { position: absolute; top: 5px; right: 5px; display: none; gap: 3px; }
+        .exec-card:hover .exec-admin-btns { display: flex; }
+        .exec-admin-btns button { font-size: 10px; padding: 2px 5px; border: none; border-radius: 3px; cursor: pointer; color: white; }
+        .btn-e { background: #007bff; }
+        .btn-d { background: #ff4d4d; }
+
+        .filter-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-select { flex: 1; padding: 12px 15px; border: 1px solid #d4c4a8; border-radius: 4px; font-size: 15px; outline: none; background: #fff; color: #333; }
+        .search-box-inline { display: flex; width: 320px; }
+        .search-input { flex-grow: 1; padding: 10px 15px; border: 1px solid #d4c4a8; border-right: none; border-radius: 4px 0 0 4px; font-size: 14px; outline: none; background: #fff; }
+        .search-btn { background: #111; color: white; border: 1px solid #111; padding: 0 20px; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; font-size: 14px; }
+
         .pw-box { display: none; background: #fff; border: 2px solid #b8860b; padding: 15px; text-align: center; max-width: 300px; margin: 15px auto; border-radius: 6px; }
         .pw-box input { padding: 8px; border: 1px solid #ccc; width: 120px; border-radius: 4px; }
         .pw-box button { background: #111; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; }
@@ -28,15 +48,16 @@
         .btn-submit { background: #b8860b; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-cancel { background: #666; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; display: none; }
         .btn-download { background: #2e7d32; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; margin-left: auto; }
+
         .member-list { list-style: none; padding: 0; margin: 0; }
-        .member-item { display: flex; align-items: center; padding: 15px 10px; border-bottom: 1px solid #eee; }
+        .member-item { display: flex; align-items: center; padding: 12px 10px; border-bottom: 1px solid #eee; background: #fff; }
         .tag-box { display: flex; flex-direction: column; gap: 4px; width: 80px; margin-right: 15px; flex-shrink: 0; }
         .status-tag { border: 1px solid #d4c4a8; background-color: #faf7f2; color: #705e43; font-size: 11px; padding: 3px 0; border-radius: 2px; text-align: center; font-weight: bold; }
         .status-tag.empty { border: 1px dashed #eee; background-color: transparent; color: #ccc; }
         .info-box { flex-grow: 1; min-width: 0; }
-        .name-line { font-size: 18px; font-weight: bold; color: #222; }
-        .name-line span { font-size: 16px; font-weight: normal; color: #555; }
-        .detail-line { font-size: 13px; color: #777; }
+        .name-line { font-size: 16px; font-weight: bold; color: #222; }
+        .name-line span { font-size: 14px; font-weight: normal; color: #555; }
+        .detail-line { font-size: 12px; color: #777; }
         .admin-actions { display: flex; gap: 5px; margin-left: 10px; }
         .btn-edit { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
@@ -55,18 +76,6 @@
 </div>
 
 <div class="content">
-    <div class="search-box">
-        <select id="searchKing" class="search-select">
-            <option value="">사천왕을 선택해주세요</option>
-            <option value="지국천왕">지국천왕</option>
-            <option value="다문천왕">다문천왕</option>
-            <option value="광목천왕">광목천왕</option>
-            <option value="증장천왕">증장천왕</option>
-            <option value="보유 없음">보유 없음</option>
-        </select>
-        <input type="text" id="searchInput" class="search-input" placeholder="명단 검색 (닉네임/직책 등)..." autocomplete="off">
-    </div>
-
     <div id="pwBox" class="pw-box">
         <p>비밀번호를 입력하세요</p>
         <input type="password" id="adminPw" placeholder="암호 입력">
@@ -83,7 +92,7 @@
             </select>
             <input type="text" id="addName" placeholder="본캐 닉네임">
             <input type="text" id="addSubs" placeholder="부캐릭터">
-            <input type="text" id="addDuty" placeholder="직책">
+            <input type="text" id="addDuty" placeholder="직책 (예: 대방, 행수)">
             <select id="addKing">
                 <option value="지국천왕">지국천왕</option>
                 <option value="다문천왕">다문천왕</option>
@@ -101,10 +110,26 @@
         </div>
     </div>
 
-    <div class="section-title">01 임원진 <span class="member-count" id="executiveCount">(00)</span></div>
-    <ul id="executiveList" class="member-list"></ul>
+    <div class="section-title">01 임원진 <span class="member-count" id="executiveCount">(0명)</span></div>
+    <div id="executiveGrid" class="exec-grid"></div>
 
-    <div class="section-title">02 상단명단 <span class="member-count" id="regularCount">(00)</span></div>
+    <div class="section-title" style="margin-top:45px;">02 상단명단 <span class="member-count" id="regularCount">(0명)</span></div>
+    
+    <div class="filter-row">
+        <select id="searchKing" class="search-select">
+            <option value="">천왕을 선택해주세요</option>
+            <option value="지국천왕">지국천왕</option>
+            <option value="다문천왕">다문천왕</option>
+            <option value="광목천왕">광목천왕</option>
+            <option value="증장천왕">증장천왕</option>
+            <option value="보유 없음">보유 없음</option>
+        </select>
+        <div class="search-box-inline">
+            <input type="text" id="searchInput" class="search-input" placeholder="명단 검색" autocomplete="off">
+            <button type="button" class="search-btn" id="searchBtn">검색</button>
+        </div>
+    </div>
+
     <ul id="regularList" class="member-list"></ul>
 </div>
 
@@ -113,11 +138,22 @@
     var members = [];
 
     function loadMemberData() {
+        // 로컬에 저장된 데이터가 있으면 우선 즉시 불러와 딜레이 제거
+        var localData = localStorage.getItem('daehan_members');
+        if (localData) {
+            try {
+                members = JSON.parse(localData);
+                renderLists();
+            } catch(e) {}
+        }
+
+        // 백그라운드에서 최신 서버 데이터 동기화
         fetch(GAS_URL)
             .then(function(res) { return res.json(); })
             .then(function(data) {
-                if (Array.isArray(data)) {
+                if (Array.isArray(data) && data.length > 0) {
                     members = data;
+                    localStorage.setItem('daehan_members', JSON.stringify(members));
                     renderLists();
                 }
             })
@@ -125,13 +161,16 @@
     }
 
     function saveMemberData() {
+        // 로컬 스토리지에 즉시 저장 (즉각 반영)
+        localStorage.setItem('daehan_members', JSON.stringify(members));
+        
+        // 백그라운드 서버 전송
         fetch(GAS_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(members)
-        })
-        .catch(function(err) { console.error(err); });
+        }).catch(function(err) { console.error(err); });
     }
 
     function isAdminLoggedIn() {
@@ -139,9 +178,9 @@
     }
 
     function renderLists() {
-        var execContainer = document.getElementById('executiveList');
+        var execGrid = document.getElementById('executiveGrid');
         var regContainer = document.getElementById('regularList');
-        execContainer.innerHTML = '';
+        execGrid.innerHTML = '';
         regContainer.innerHTML = '';
 
         var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
@@ -150,57 +189,68 @@
         var execCount = 0, regCount = 0;
 
         members.forEach(function(member, index) {
-            // 상단명단은 사천왕/검색어 필터 적용
-            var isRegMatch = true;
-            if (selectedKing && member.king !== selectedKing) isRegMatch = false;
-            var text = [member.name, member.subs, member.duty, member.king].join(' ').toLowerCase();
-            if (keyword && text.indexOf(keyword) === -1) isRegMatch = false;
+            var uniqueId = member.id || index;
 
             if (member.position === '임원진') {
                 execCount++;
-                // 임원진은 사천왕/검색어 선택과 무관하게 항상 고정 노출 (단, 검색어나 천왕 선택 시 필터링을 원하면 조건 조절 가능)
-                var li = createMemberElement(member, index);
-                execContainer.appendChild(li);
-            } else if (isRegMatch) {
-                regCount++;
-                var li = createMemberElement(member, index);
-                regContainer.appendChild(li);
+                var card = document.createElement('div');
+                card.className = 'exec-card';
+                
+                var adminBtnsHtml = '';
+                if (isAdminLoggedIn()) {
+                    adminBtnsHtml = '<div class="exec-admin-btns">' +
+                        '<button class="btn-e" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                        '<button class="btn-d" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                        '</div>';
+                }
+
+                card.innerHTML = adminBtnsHtml +
+                    '<div class="exec-name">' + (member.name || '') + '</div>' +
+                    '<div class="exec-duty">' + (member.duty || '임원진') + '</div>' +
+                    '<div class="exec-subinfo">부캐: ' + (member.subs || '없음') + ' | ' + (member.king || '') + '</div>';
+                
+                execGrid.appendChild(card);
+            } else {
+                var isMatch = true;
+                if (selectedKing && member.king !== selectedKing) isMatch = false;
+                var text = [member.name, member.subs, member.duty, member.king].join(' ').toLowerCase();
+                if (keyword && text.indexOf(keyword) === -1) isMatch = false;
+
+                if (isMatch) {
+                    regCount++;
+                    var li = document.createElement('li');
+                    li.className = 'member-item';
+
+                    var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
+                    var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
+                    
+                    var actionBtns = '';
+                    if (isAdminLoggedIn()) {
+                        actionBtns = '<div class="admin-actions">' +
+                            '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                            '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                            '</div>';
+                    }
+
+                    li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
+                        '<div class="info-box"><div class="name-line">' + (member.name||'') + ' <span>/' + (member.subs||'없음') + '</span></div>' +
+                        '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
+
+                    regContainer.appendChild(li);
+                }
             }
         });
 
-        if (execContainer.children.length === 0) {
-            execContainer.innerHTML = '<div class="guide-text">등록된 임원진이 없습니다.</div>';
+        if (execGrid.children.length === 0) {
+            execGrid.innerHTML = '<div class="guide-text" style="grid-column: 1/-1;">등록된 임원진이 없습니다.</div>';
         }
 
         if (regContainer.children.length === 0) {
             regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>';
         }
 
-        document.getElementById('executiveCount').innerText = '(' + String(execCount) + '명)';
-        document.getElementById('regularCount').innerText = '(' + String(regCount) + '명)';
-    }
-
-    function createMemberElement(member, index) {
-        var li = document.createElement('li');
-        li.className = 'member-item';
-
-        var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
-        var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
-        
-        var actionBtns = '';
-        if (isAdminLoggedIn()) {
-            var uniqueId = member.id || index;
-            actionBtns = '<div class="admin-actions">' +
-                '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
-                '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
-                '</div>';
-        }
-
-        li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
-            '<div class="info-box"><div class="name-line">' + (member.name||'') + ' <span>/' + (member.subs||'없음') + '</span></div>' +
-            '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
-
-        return li;
+        document.getElementById('executiveCount').innerText = '(' + execCount + '명)';
+        document.getElementById('regularCount').innerText = '(' + regCount + '명)';
     }
 
     function saveMember() {
@@ -342,7 +392,11 @@
         document.getElementById('submitBtn').addEventListener('click', saveMember);
         document.getElementById('cancelBtn').addEventListener('click', resetForm);
         document.getElementById('downloadBtn').addEventListener('click', downloadExcel);
-        document.getElementById('searchInput').addEventListener('input', renderLists);
+        
+        document.getElementById('searchBtn').addEventListener('click', renderLists);
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') renderLists();
+        });
         document.getElementById('searchKing').addEventListener('change', renderLists);
     });
 </script>
