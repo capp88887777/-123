@@ -145,10 +145,20 @@
 <script>
     var GAS_URL = "https://script.google.com/macros/s/AKfycbwzsB95cqaItlBdS8mj79DZL1uCDgLwto7olWEkv3XLCGiaC-s5mxzM7gC03EOe4twDtA/exec";
     var members = [];
+    
+    // 실시간 브라우저 간 통신 채널 (PC/모바일 딜레이 최소화)
+    var syncChannel = new BroadcastChannel('daehan_guild_sync');
 
-    function loadMemberData() {
+    syncChannel.onmessage = function(event) {
+        if (event.data && Array.isArray(event.data)) {
+            members = event.data;
+            renderLists();
+        }
+    };
+
+    function loadMemberData(isSilent) {
         var localData = localStorage.getItem('daehan_members');
-        if (localData) {
+        if (localData && !members.length) {
             try {
                 members = JSON.parse(localData);
                 renderLists();
@@ -159,17 +169,26 @@
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (Array.isArray(data) && data.length > 0) {
-                    members = data;
-                    localStorage.setItem('daehan_members', JSON.stringify(members));
-                    renderLists();
+                    // 데이터 변동이 있을 때만 렌더링 리프레시
+                    if (JSON.stringify(members) !== JSON.stringify(data)) {
+                        members = data;
+                        localStorage.setItem('daehan_members', JSON.stringify(members));
+                        renderLists();
+                    }
                 }
             })
             .catch(function(err) { console.error(err); });
     }
 
     function saveMemberData() {
+        // 1. 로컬 즉시 저장 및 즉시 렌더링
         localStorage.setItem('daehan_members', JSON.stringify(members));
-        
+        renderLists();
+
+        // 2. 다른 탭/모바일 기기 브라우저들에 즉시 전파
+        syncChannel.postMessage(members);
+
+        // 3. 백그라운드 서버 전송
         fetch(GAS_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -294,7 +313,6 @@
             resetForm();
         }
 
-        renderLists();
         saveMemberData();
     }
 
@@ -334,7 +352,6 @@
             members = members.filter(function(m) {
                 return String(m.id || members.indexOf(m)) !== String(targetId);
             });
-            renderLists();
             saveMemberData();
         }
     }
@@ -365,6 +382,11 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         loadMemberData();
+
+        // 3초마다 백그라운드 서버 동기화 체크 (딜레이 실시간 감지)
+        setInterval(function() {
+            loadMemberData(true);
+        }, 3000);
         
         document.getElementById('loginBtn').addEventListener('click', function() {
             if (isAdminLoggedIn()) {
