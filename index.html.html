@@ -50,6 +50,7 @@
         .info-box { flex-grow: 1; min-width: 0; }
         .name-line { font-size: 16px; font-weight: bold; color: #222; }
         .detail-line { font-size: 12px; color: #777; }
+        .note-text { font-size: 12px; color: #b8860b; font-weight: bold; margin-left: 8px; }
         .admin-actions { display: flex; gap: 5px; margin-left: 10px; }
         .btn-edit { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
@@ -83,8 +84,9 @@
                 <option value="상단명단">일반 상단원</option>
                 <option value="부클라">부클라</option>
             </select>
-            <input type="text" id="addName" placeholder="캐릭터 닉네임">
-            <input type="text" id="addDuty" placeholder="직책 (예: 대방, 도방 등)">
+            <input type="text" id="addName" placeholder="캐릭터 닉네임" style="width: 140px;">
+            <input type="text" id="addNote" placeholder="비고 (특이사항)" style="width: 130px;">
+            <input type="text" id="addDuty" placeholder="직책 (예: 대방, 도방 등)" style="width: 160px;">
             <select id="addKing">
                 <option value="지국천왕">지국천왕</option>
                 <option value="다문천왕">다문천왕</option>
@@ -131,7 +133,7 @@
     </div>
 
     <ul id="regularList" class="member-list">
-        <div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>
+        <div class="guide-text">천왕을 선택하거나 검색어를 입력하면 명단이 표시됩니다.</div>
     </ul>
 </div>
 
@@ -166,6 +168,7 @@
                         return {
                             id: m.id || ('id_' + Math.random().toString(36).substr(2, 9)),
                             name: m.name || '',
+                            note: m.note || '',
                             duty: m.duty || '',
                             king: m.king || '보유 없음',
                             position: m.position || '상단명단',
@@ -198,17 +201,15 @@
     }
 
     function renderLists() {
-        // 전체 등록된 모든 인원수 (임원진 + 일반상단원 + 부클라 등 전체)를 '상단명단' 타이틀 옆에 표시
         document.getElementById('totalCount').innerText = '(임원진 포함 총 ' + members.length + '명)';
 
-        // 1. 임원진 직책 고정 순서 (대방 -> 도방 -> 대행수 -> 행수 -> 행동대장 -> 서기)
         var dutyOrder = { '대방': 1, '도방': 2, '대행수': 3, '행수': 4, '행동대장': 5, '서기': 6 };
         function getDutyRank(duty) {
             var trimmed = (duty || '').trim();
             return dutyOrder[trimmed] !== undefined ? dutyOrder[trimmed] : 99;
         }
 
-        // 01 임원진 영역 렌더링 (지정된 직책 순서 고정)
+        // 01 임원진 영역 렌더링
         var execContainer = document.getElementById('executiveGrid');
         execContainer.innerHTML = '';
         var execMembers = members.filter(function(m) { return m.position === '임원진'; }).sort(function(a, b) {
@@ -226,6 +227,7 @@
 
             var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
             var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
+            var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
 
             var actionBtns = '';
             if (isAdminLoggedIn()) {
@@ -236,7 +238,7 @@
             }
 
             card.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
-                '<div class="info-box"><div class="name-line">' + (member.name||'') + '</div>' +
+                '<div class="info-box"><div class="name-line">' + (member.name||'') + noteHtml + '</div>' +
                 '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
 
             execContainer.appendChild(card);
@@ -246,7 +248,7 @@
             execContainer.innerHTML = '<div class="guide-text" style="grid-column:1/-1;">등록된 임원진이 없습니다.</div>';
         }
 
-        // 2. 02 상단명단 영역 렌더링 (부클라 포함 전체 대상, 검색/필터 적용, 가나다순 정렬)
+        // 02 상단명단 영역 렌더링
         var regContainer = document.getElementById('regularList');
         var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
         var selectedKing = document.getElementById('searchKing').value;
@@ -261,14 +263,14 @@
                     return false;
                 }
                 if (keyword) {
-                    var text = [member.name, member.duty, member.king, member.position].join(' ').toLowerCase();
+                    var text = [member.name, member.note, member.duty, member.king, member.position].join(' ').toLowerCase();
                     if (text.indexOf(keyword) === -1) {
                         return false;
                     }
                 }
                 return true;
             }).sort(function(a, b) {
-                return (a.name || '').localeCompare(b.name || '', 'ko'); // 가나다순 정렬
+                return (a.name || '').localeCompare(b.name || '', 'ko');
             });
 
             matchedMembers.forEach(function(member, index) {
@@ -278,6 +280,7 @@
 
                 var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
                 var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
+                var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
                 
                 var actionBtns = '';
                 if (isAdminLoggedIn()) {
@@ -288,7 +291,7 @@
                 }
 
                 li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
-                    '<div class="info-box"><div class="name-line">' + (member.name||'') + ' <span style="font-size:12px; color:#b8860b; font-weight:normal;">[' + (member.position||'') + ']</span></div>' +
+                    '<div class="info-box"><div class="name-line">' + (member.name||'') + noteHtml + ' <span style="font-size:12px; color:#b8860b; font-weight:normal;">[' + (member.position||'') + ']</span></div>' +
                     '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
 
                 regContainer.appendChild(li);
@@ -311,6 +314,7 @@
             var target = members.find(function(m) { return String(m.id || members.indexOf(m)) === String(editIdx); });
             if (target) {
                 target.name = name;
+                target.note = document.getElementById('addNote').value.trim();
                 target.duty = document.getElementById('addDuty').value.trim();
                 target.king = document.getElementById('addKing').value;
                 target.position = document.getElementById('addPosition').value;
@@ -323,6 +327,7 @@
             var newMember = {
                 id: 'id_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2, 5),
                 name: name,
+                note: document.getElementById('addNote').value.trim(),
                 duty: document.getElementById('addDuty').value.trim(),
                 king: document.getElementById('addKing').value,
                 position: document.getElementById('addPosition').value,
@@ -344,6 +349,7 @@
         document.getElementById('editIndex').value = targetId;
         document.getElementById('addPosition').value = member.position || '상단명단';
         document.getElementById('addName').value = member.name || '';
+        document.getElementById('addNote').value = member.note || '';
         document.getElementById('addDuty').value = member.duty || '';
         document.getElementById('addKing').value = member.king || '보유 없음';
         document.getElementById('check2nd').checked = !!member.is2nd;
@@ -358,6 +364,7 @@
     function resetForm() {
         document.getElementById('editIndex').value = '';
         document.getElementById('addName').value = '';
+        document.getElementById('addNote').value = '';
         document.getElementById('addDuty').value = '';
         document.getElementById('check2nd').checked = false;
         document.getElementById('checkAwaken').checked = false;
@@ -377,11 +384,12 @@
 
     function downloadExcel() {
         if (members.length === 0) return alert('다운로드할 명단이 없습니다.');
-        var csvContent = "\uFEFF구분,캐릭터닉네임,직책,사천왕,2차여부,각성여부\n";
+        var csvContent = "\uFEFF구분,캐릭터닉네임,비고,직책,사천왕,2차여부,각성여부\n";
         members.forEach(function(m) {
             csvContent += [
                 '"' + (m.position || '') + '"',
                 '"' + (m.name || '') + '"',
+                '"' + (m.note || '') + '"',
                 '"' + (m.duty || '') + '"',
                 '"' + (m.king || '') + '"',
                 m.is2nd ? 'O' : 'X',
