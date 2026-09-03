@@ -20,6 +20,20 @@
         .section-title { font-size: 18px; font-weight: bold; color: #b8860b; margin: 0; display: flex; align-items: center; }
         .member-count { font-size: 16px; color: #777; font-weight: bold; margin-left: 6px; }
 
+        .exec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        @media(max-width: 768px) { .exec-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(max-width: 480px) { .exec-grid { grid-template-columns: 1fr; } }
+        
+        .exec-card { background-color: #fff; border: 1px solid #d4c4a8; padding: 12px 15px; text-align: center; border-radius: 2px; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .exec-name { font-size: 16px; font-weight: bold; color: #222; margin-bottom: 4px; }
+        .exec-duty { font-size: 13px; color: #666; }
+        .exec-subinfo { font-size: 11px; color: #888; margin-top: 2px; }
+        .exec-admin-btns { position: absolute; top: 5px; right: 5px; display: none; gap: 3px; }
+        .exec-card:hover .exec-admin-btns { display: flex; }
+        .exec-admin-btns button { font-size: 10px; padding: 2px 5px; border: none; border-radius: 3px; cursor: pointer; color: white; }
+        .btn-e { background: #007bff; }
+        .btn-d { background: #ff4d4d; }
+
         .search-container { display: flex; align-items: center; }
         .search-box-inline { display: flex; width: 240px; }
         .search-input { flex-grow: 1; padding: 6px 10px; border: 1px solid #d4c4a8; border-right: none; border-radius: 4px 0 0 4px; font-size: 13px; outline: none; background: #fff; }
@@ -27,10 +41,6 @@
 
         .filter-row { margin-bottom: 15px; }
         .search-select { width: 100%; padding: 12px 15px; border: 1px solid #d4c4a8; border-radius: 4px; font-size: 15px; outline: none; background: #fff; color: #333; }
-
-        /* 임원진 고정 카드 그리드 스타일 */
-        .exec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 30px; }
-        .exec-card { background: #faf7f2; border: 1px solid #d4c4a8; border-radius: 6px; padding: 12px; display: flex; align-items: center; }
 
         .pw-box { display: none; background: #fff; border: 2px solid #b8860b; padding: 15px; text-align: center; max-width: 300px; margin: 15px auto; border-radius: 6px; }
         .pw-box input { padding: 8px; border: 1px solid #ccc; width: 120px; border-radius: 4px; }
@@ -49,8 +59,9 @@
         .status-tag.empty { border: 1px dashed #eee; background-color: transparent; color: #ccc; }
         .info-box { flex-grow: 1; min-width: 0; }
         .name-line { font-size: 16px; font-weight: bold; color: #222; }
+        .name-line span { font-size: 14px; font-weight: normal; color: #555; }
         .detail-line { font-size: 12px; color: #777; }
-        .note-text { font-size: 12px; color: #b8860b; font-weight: bold; margin-left: 8px; }
+        .note-text { font-size: 12px; color: #b8860b; font-weight: bold; margin-left: 6px; }
         .admin-actions { display: flex; gap: 5px; margin-left: 10px; }
         .btn-edit { background: #007bff; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         .btn-delete { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
@@ -82,11 +93,11 @@
             <select id="addPosition">
                 <option value="임원진">임원진</option>
                 <option value="상단명단">일반 상단원</option>
-                <option value="부클라">부클라</option>
             </select>
-            <input type="text" id="addName" placeholder="캐릭터 닉네임" style="width: 140px;">
-            <input type="text" id="addNote" placeholder="비고 (특이사항)" style="width: 130px;">
-            <input type="text" id="addDuty" placeholder="직책 (예: 대방, 도방 등)" style="width: 160px;">
+            <input type="text" id="addName" placeholder="본캐 닉네임">
+            <input type="text" id="addSubs" placeholder="부캐릭터">
+            <input type="text" id="addNote" placeholder="비고 (특이사항)">
+            <input type="text" id="addDuty" placeholder="직책 (예: 대방, 행수)">
             <select id="addKing">
                 <option value="지국천왕">지국천왕</option>
                 <option value="다문천왕">다문천왕</option>
@@ -104,15 +115,13 @@
         </div>
     </div>
 
-    <!-- 01 임원진 고정 영역 -->
-    <div class="section-header" style="margin-top:10px;">
-        <div class="section-title">01 임원진 <span class="member-count" id="execCount">(0명)</span></div>
+    <div class="section-header">
+        <div class="section-title">01 임원진 <span class="member-count" id="executiveCount">(0명)</span></div>
     </div>
     <div id="executiveGrid" class="exec-grid"></div>
 
-    <!-- 02 상단명단 영역 -->
-    <div class="section-header">
-        <div class="section-title">02 상단명단 <span class="member-count" id="totalCount">(임원진 포함 총 0명)</span></div>
+    <div class="section-header" style="margin-top:45px;">
+        <div class="section-title">02 상단명단 <span class="member-count" id="totalCount">(0명)</span></div>
         <div class="search-container">
             <div class="search-box-inline">
                 <input type="text" id="searchInput" class="search-input" placeholder="명단 검색" autocomplete="off">
@@ -123,7 +132,7 @@
     
     <div class="filter-row">
         <select id="searchKing" class="search-select">
-            <option value="">천왕을 선택해주세요 (전체 보기)</option>
+            <option value="">천왕을 선택해주세요</option>
             <option value="지국천왕">지국천왕</option>
             <option value="다문천왕">다문천왕</option>
             <option value="광목천왕">광목천왕</option>
@@ -133,13 +142,14 @@
     </div>
 
     <ul id="regularList" class="member-list">
-        <div class="guide-text">천왕을 선택하거나 검색어를 입력하면 명단이 표시됩니다.</div>
+        <div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>
     </ul>
 </div>
 
 <script>
     var GAS_URL = "https://script.google.com/macros/s/AKfycbwzsB95cqaItlBdS8mj79DZL1uCDgLwto7olWEkv3XLCGiaC-s5mxzM7gC03EOe4twDtA/exec";
     var members = [];
+    
     var syncChannel = new BroadcastChannel('daehan_guild_sync');
 
     syncChannel.onmessage = function(event) {
@@ -149,15 +159,13 @@
         }
     };
 
-    function loadMemberData(isInitial) {
-        if (isInitial) {
-            var localData = localStorage.getItem('daehan_members');
-            if (localData) {
-                try {
-                    members = JSON.parse(localData);
-                    renderLists();
-                } catch(e) {}
-            }
+    function loadMemberData() {
+        var localData = localStorage.getItem('daehan_members');
+        if (localData && !members.length) {
+            try {
+                members = JSON.parse(localData);
+                renderLists();
+            } catch(e) {}
         }
 
         fetch(GAS_URL)
@@ -168,6 +176,7 @@
                         return {
                             id: m.id || ('id_' + Math.random().toString(36).substr(2, 9)),
                             name: m.name || '',
+                            subs: m.subs || '',
                             note: m.note || '',
                             duty: m.duty || '',
                             king: m.king || '보유 없음',
@@ -201,106 +210,99 @@
     }
 
     function renderLists() {
-        document.getElementById('totalCount').innerText = '(임원진 포함 총 ' + members.length + '명)';
-
-        var dutyOrder = { '대방': 1, '도방': 2, '대행수': 3, '행수': 4, '행동대장': 5, '서기': 6 };
-        function getDutyRank(duty) {
-            var trimmed = (duty || '').trim();
-            return dutyOrder[trimmed] !== undefined ? dutyOrder[trimmed] : 99;
-        }
-
-        // 01 임원진 영역 렌더링
-        var execContainer = document.getElementById('executiveGrid');
-        execContainer.innerHTML = '';
-        var execMembers = members.filter(function(m) { return m.position === '임원진'; }).sort(function(a, b) {
-            var rankA = getDutyRank(a.duty);
-            var rankB = getDutyRank(b.duty);
-            if (rankA !== rankB) return rankA - rankB;
-            return (a.name || '').localeCompare(b.name || '', 'ko');
-        });
-        document.getElementById('execCount').innerText = '(' + execMembers.length + '명)';
-
-        execMembers.forEach(function(member, index) {
-            var uniqueId = member.id || ('exec_' + index);
-            var card = document.createElement('div');
-            card.className = 'exec-card';
-
-            var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
-            var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
-            var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
-
-            var actionBtns = '';
-            if (isAdminLoggedIn()) {
-                actionBtns = '<div class="admin-actions" style="margin-left:auto;">' +
-                    '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
-                    '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
-                    '</div>';
-            }
-
-            card.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
-                '<div class="info-box"><div class="name-line">' + (member.name||'') + noteHtml + '</div>' +
-                '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
-
-            execContainer.appendChild(card);
-        });
-
-        if (execMembers.length === 0) {
-            execContainer.innerHTML = '<div class="guide-text" style="grid-column:1/-1;">등록된 임원진이 없습니다.</div>';
-        }
-
-        // 02 상단명단 영역 렌더링
+        var execGrid = document.getElementById('executiveGrid');
         var regContainer = document.getElementById('regularList');
+        execGrid.innerHTML = '';
+
         var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
         var selectedKing = document.getElementById('searchKing').value;
-        
-        if (!keyword && !selectedKing) {
-            regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 명단이 표시됩니다.</div>';
-        } else {
-            regContainer.innerHTML = '';
-            
-            var matchedMembers = members.filter(function(member) {
-                if (selectedKing && member.king !== selectedKing) {
-                    return false;
-                }
-                if (keyword) {
-                    var text = [member.name, member.note, member.duty, member.king, member.position].join(' ').toLowerCase();
-                    if (text.indexOf(keyword) === -1) {
-                        return false;
-                    }
-                }
-                return true;
-            }).sort(function(a, b) {
-                return (a.name || '').localeCompare(b.name || '', 'ko');
-            });
 
-            matchedMembers.forEach(function(member, index) {
-                var uniqueId = member.id || index;
-                var li = document.createElement('li');
-                li.className = 'member-item';
+        var execCount = 0;
 
-                var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
-                var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
-                var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
+        members.forEach(function(member, index) {
+            var uniqueId = member.id || index;
+
+            if (member.position === '임원진') {
+                execCount++;
+                var card = document.createElement('div');
+                card.className = 'exec-card';
                 
-                var actionBtns = '';
+                var adminBtnsHtml = '';
                 if (isAdminLoggedIn()) {
-                    actionBtns = '<div class="admin-actions">' +
-                        '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
-                        '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                    adminBtnsHtml = '<div class="exec-admin-btns">' +
+                        '<button class="btn-e" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                        '<button class="btn-d" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
                         '</div>';
                 }
 
-                li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
-                    '<div class="info-box"><div class="name-line">' + (member.name||'') + noteHtml + ' <span style="font-size:12px; color:#b8860b; font-weight:normal;">[' + (member.position||'') + ']</span></div>' +
-                    '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
+                var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
 
-                regContainer.appendChild(li);
+                card.innerHTML = adminBtnsHtml +
+                    '<div class="exec-name">' + (member.name || '') + noteHtml + '</div>' +
+                    '<div class="exec-duty">' + (member.duty || '임원진') + '</div>' +
+                    '<div class="exec-subinfo">부캐: ' + (member.subs || '없음') + ' | ' + (member.king || '') + '</div>';
+                
+                execGrid.appendChild(card);
+            }
+        });
+
+        if (execGrid.children.length === 0) {
+            execGrid.innerHTML = '<div class="guide-text" style="grid-column: 1/-1;">등록된 임원진이 없습니다.</div>';
+        }
+
+        if (!keyword && !selectedKing) {
+            regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>';
+        } else {
+            regContainer.innerHTML = '';
+            var matchCount = 0;
+
+            members.forEach(function(member, index) {
+                if (member.position !== '임원진') {
+                    var isMatch = true;
+                    if (selectedKing && member.king !== selectedKing) {
+                        isMatch = false;
+                    }
+                    if (keyword) {
+                        var text = [member.name, member.subs, member.note, member.duty, member.king].join(' ').toLowerCase();
+                        if (text.indexOf(keyword) === -1) {
+                            isMatch = false;
+                        }
+                    }
+
+                    if (isMatch) {
+                        matchCount++;
+                        var uniqueId = member.id || index;
+                        var li = document.createElement('li');
+                        li.className = 'member-item';
+
+                        var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
+                        var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
+                        var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
+                        
+                        var actionBtns = '';
+                        if (isAdminLoggedIn()) {
+                            actionBtns = '<div class="admin-actions">' +
+                                '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                                '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                                '</div>';
+                        }
+
+                        li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
+                            '<div class="info-box"><div class="name-line">' + (member.name||'') + noteHtml + ' <span>/' + (member.subs||'없음') + '</span></div>' +
+                            '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
+
+                        regContainer.appendChild(li);
+                    }
+                }
             });
 
-            if (matchedMembers.length === 0) {
-                regContainer.innerHTML = '<div class="guide-text">조건에 일치하는 명단이 없습니다.</div>';
+            if (matchCount === 0) {
+                regContainer.innerHTML = '<div class="guide-text">조건에 일치하는 상단원이 없습니다.</div>';
             }
         }
+
+        document.getElementById('executiveCount').innerText = '(' + execCount + '명)';
+        document.getElementById('totalCount').innerText = '(' + members.length + '명)';
     }
 
     function saveMember() {
@@ -314,6 +316,7 @@
             var target = members.find(function(m) { return String(m.id || members.indexOf(m)) === String(editIdx); });
             if (target) {
                 target.name = name;
+                target.subs = document.getElementById('addSubs').value.trim();
                 target.note = document.getElementById('addNote').value.trim();
                 target.duty = document.getElementById('addDuty').value.trim();
                 target.king = document.getElementById('addKing').value;
@@ -327,6 +330,7 @@
             var newMember = {
                 id: 'id_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2, 5),
                 name: name,
+                subs: document.getElementById('addSubs').value.trim(),
                 note: document.getElementById('addNote').value.trim(),
                 duty: document.getElementById('addDuty').value.trim(),
                 king: document.getElementById('addKing').value,
@@ -349,6 +353,7 @@
         document.getElementById('editIndex').value = targetId;
         document.getElementById('addPosition').value = member.position || '상단명단';
         document.getElementById('addName').value = member.name || '';
+        document.getElementById('addSubs').value = member.subs || '';
         document.getElementById('addNote').value = member.note || '';
         document.getElementById('addDuty').value = member.duty || '';
         document.getElementById('addKing').value = member.king || '보유 없음';
@@ -364,6 +369,7 @@
     function resetForm() {
         document.getElementById('editIndex').value = '';
         document.getElementById('addName').value = '';
+        document.getElementById('addSubs').value = '';
         document.getElementById('addNote').value = '';
         document.getElementById('addDuty').value = '';
         document.getElementById('check2nd').checked = false;
@@ -384,11 +390,12 @@
 
     function downloadExcel() {
         if (members.length === 0) return alert('다운로드할 명단이 없습니다.');
-        var csvContent = "\uFEFF구분,캐릭터닉네임,비고,직책,사천왕,2차여부,각성여부\n";
+        var csvContent = "\uFEFF구분,본캐닉네임,부캐릭터,비고,직책,사천왕,2차여부,각성여부\n";
         members.forEach(function(m) {
             csvContent += [
                 '"' + (m.position || '') + '"',
                 '"' + (m.name || '') + '"',
+                '"' + (m.subs || '') + '"',
                 '"' + (m.note || '') + '"',
                 '"' + (m.duty || '') + '"',
                 '"' + (m.king || '') + '"',
@@ -407,12 +414,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        loadMemberData(true);
+        loadMemberData();
 
         setInterval(function() {
-            if (!isAdminLoggedIn() || document.getElementById('editIndex').value === '') {
-                loadMemberData(false);
-            }
+            loadMemberData();
         }, 10000);
         
         document.getElementById('loginBtn').addEventListener('click', function() {
