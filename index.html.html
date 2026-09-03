@@ -83,7 +83,7 @@
                 <option value="상단명단">일반 상단원</option>
             </select>
             <input type="text" id="addName" placeholder="본캐 닉네임">
-            <input type="text" id="addDuty" placeholder="직책 (예: 대방, 행수)">
+            <input type="text" id="addDuty" placeholder="직책 (예: 대방, 도방 등)">
             <select id="addKing">
                 <option value="지국천왕">지국천왕</option>
                 <option value="다문천왕">다문천왕</option>
@@ -197,15 +197,25 @@
     }
 
     function renderLists() {
-        // 공통 정렬 함수 (가나다라 순)
-        function sortByName(a, b) {
-            return (a.name || '').localeCompare(b.name || '', 'ko');
+        // 1. 임원진 직책 우선순위 설정 (대방 -> 도방 -> 대행수 -> 행수 -> 행동대장 -> 서기)
+        var dutyOrder = { '대방': 1, '도방': 2, '대행수': 3, '행수': 4, '행동대장': 5, '서기': 6 };
+
+        function getDutyRank(duty) {
+            var trimmed = (duty || '').trim();
+            return dutyOrder[trimmed] !== undefined ? dutyOrder[trimmed] : 99; // 정의되지 않은 직책은 맨 뒤로
         }
 
-        // 1. 01 임원진 영역 렌더링 (임원진도 가나다순 정렬)
+        // 2. 01 임원진 영역 렌더링 (지정된 직책 순서대로 고정 정렬)
         var execContainer = document.getElementById('executiveGrid');
         execContainer.innerHTML = '';
-        var execMembers = members.filter(function(m) { return m.position === '임원진'; }).sort(sortByName);
+        var execMembers = members.filter(function(m) { return m.position === '임원진'; }).sort(function(a, b) {
+            var rankA = getDutyRank(a.duty);
+            var rankB = getDutyRank(b.duty);
+            if (rankA !== rankB) {
+                return rankA - rankB;
+            }
+            return (a.name || '').localeCompare(b.name || '', 'ko'); // 직책이 같으면 가나다순
+        });
         document.getElementById('execCount').innerText = '(' + execMembers.length + '명)';
 
         execMembers.forEach(function(member, index) {
@@ -235,7 +245,7 @@
             execContainer.innerHTML = '<div class="guide-text" style="grid-column:1/-1;">등록된 임원진이 없습니다.</div>';
         }
 
-        // 2. 02 상단명단 영역 렌더링 (검색 및 필터 조건 적용 후 가나다순 정렬)
+        // 3. 02 상단명단 영역 렌더링 (검색 및 필터 조건 적용 후 가나다순 정렬, 임원진도 검색에 포함)
         var regContainer = document.getElementById('regularList');
         var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
         var selectedKing = document.getElementById('searchKing').value;
@@ -246,7 +256,6 @@
         } else {
             regContainer.innerHTML = '';
             
-            // 조건에 맞는 멤버들을 필터링하고 가나다순으로 정렬
             var matchedMembers = members.filter(function(member) {
                 if (selectedKing && member.king !== selectedKing) {
                     return false;
@@ -258,7 +267,9 @@
                     }
                 }
                 return true;
-            }).sort(sortByName);
+            }).sort(function(a, b) {
+                return (a.name || '').localeCompare(b.name || '', 'ko'); // 일반 검색 결과는 가나다순
+            });
 
             matchedMembers.forEach(function(member, index) {
                 var uniqueId = member.id || index;
