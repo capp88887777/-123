@@ -81,8 +81,9 @@
             <select id="addPosition">
                 <option value="임원진">임원진</option>
                 <option value="상단명단">일반 상단원</option>
+                <option value="부클라">부클라</option>
             </select>
-            <input type="text" id="addName" placeholder="본캐 닉네임">
+            <input type="text" id="addName" placeholder="캐릭터 닉네임">
             <input type="text" id="addDuty" placeholder="직책 (예: 대방, 도방 등)">
             <select id="addKing">
                 <option value="지국천왕">지국천왕</option>
@@ -109,7 +110,7 @@
 
     <!-- 02 상단명단 영역 -->
     <div class="section-header">
-        <div class="section-title">02 상단명단 <span class="member-count" id="totalCount">(0명)</span></div>
+        <div class="section-title">02 상단명단 <span class="member-count" id="totalCount">(임원진 포함 총 0명)</span></div>
         <div class="search-container">
             <div class="search-box-inline">
                 <input type="text" id="searchInput" class="search-input" placeholder="명단 검색" autocomplete="off">
@@ -120,7 +121,7 @@
     
     <div class="filter-row">
         <select id="searchKing" class="search-select">
-            <option value="">천왕을 선택해주세요</option>
+            <option value="">천왕을 선택해주세요 (전체 보기)</option>
             <option value="지국천왕">지국천왕</option>
             <option value="다문천왕">다문천왕</option>
             <option value="광목천왕">광목천왕</option>
@@ -197,24 +198,24 @@
     }
 
     function renderLists() {
-        // 1. 임원진 직책 우선순위 설정 (대방 -> 도방 -> 대행수 -> 행수 -> 행동대장 -> 서기)
-        var dutyOrder = { '대방': 1, '도방': 2, '대행수': 3, '행수': 4, '행동대장': 5, '서기': 6 };
+        // 전체 등록된 모든 인원수 (임원진 + 일반상단원 + 부클라 등 전체)를 '상단명단' 타이틀 옆에 표시
+        document.getElementById('totalCount').innerText = '(임원진 포함 총 ' + members.length + '명)';
 
+        // 1. 임원진 직책 고정 순서 (대방 -> 도방 -> 대행수 -> 행수 -> 행동대장 -> 서기)
+        var dutyOrder = { '대방': 1, '도방': 2, '대행수': 3, '행수': 4, '행동대장': 5, '서기': 6 };
         function getDutyRank(duty) {
             var trimmed = (duty || '').trim();
-            return dutyOrder[trimmed] !== undefined ? dutyOrder[trimmed] : 99; // 정의되지 않은 직책은 맨 뒤로
+            return dutyOrder[trimmed] !== undefined ? dutyOrder[trimmed] : 99;
         }
 
-        // 2. 01 임원진 영역 렌더링 (지정된 직책 순서대로 고정 정렬)
+        // 01 임원진 영역 렌더링 (지정된 직책 순서 고정)
         var execContainer = document.getElementById('executiveGrid');
         execContainer.innerHTML = '';
         var execMembers = members.filter(function(m) { return m.position === '임원진'; }).sort(function(a, b) {
             var rankA = getDutyRank(a.duty);
             var rankB = getDutyRank(b.duty);
-            if (rankA !== rankB) {
-                return rankA - rankB;
-            }
-            return (a.name || '').localeCompare(b.name || '', 'ko'); // 직책이 같으면 가나다순
+            if (rankA !== rankB) return rankA - rankB;
+            return (a.name || '').localeCompare(b.name || '', 'ko');
         });
         document.getElementById('execCount').innerText = '(' + execMembers.length + '명)';
 
@@ -245,14 +246,13 @@
             execContainer.innerHTML = '<div class="guide-text" style="grid-column:1/-1;">등록된 임원진이 없습니다.</div>';
         }
 
-        // 3. 02 상단명단 영역 렌더링 (검색 및 필터 조건 적용 후 가나다순 정렬, 임원진도 검색에 포함)
+        // 2. 02 상단명단 영역 렌더링 (부클라 포함 전체 대상, 검색/필터 적용, 가나다순 정렬)
         var regContainer = document.getElementById('regularList');
         var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
         var selectedKing = document.getElementById('searchKing').value;
         
         if (!keyword && !selectedKing) {
-            regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>';
-            document.getElementById('totalCount').innerText = '(0명)';
+            regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 명단이 표시됩니다.</div>';
         } else {
             regContainer.innerHTML = '';
             
@@ -268,7 +268,7 @@
                 }
                 return true;
             }).sort(function(a, b) {
-                return (a.name || '').localeCompare(b.name || '', 'ko'); // 일반 검색 결과는 가나다순
+                return (a.name || '').localeCompare(b.name || '', 'ko'); // 가나다순 정렬
             });
 
             matchedMembers.forEach(function(member, index) {
@@ -295,9 +295,8 @@
             });
 
             if (matchedMembers.length === 0) {
-                regContainer.innerHTML = '<div class="guide-text">조건에 일치하는 상단원이 없습니다.</div>';
+                regContainer.innerHTML = '<div class="guide-text">조건에 일치하는 명단이 없습니다.</div>';
             }
-            document.getElementById('totalCount').innerText = '(' + matchedMembers.length + '명)';
         }
     }
 
@@ -378,7 +377,7 @@
 
     function downloadExcel() {
         if (members.length === 0) return alert('다운로드할 명단이 없습니다.');
-        var csvContent = "\uFEFF구분,본캐닉네임,직책,사천왕,2차여부,각성여부\n";
+        var csvContent = "\uFEFF구분,캐릭터닉네임,직책,사천왕,2차여부,각성여부\n";
         members.forEach(function(m) {
             csvContent += [
                 '"' + (m.position || '') + '"',
