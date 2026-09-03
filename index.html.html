@@ -137,26 +137,37 @@
     };
 
     function loadMemberData() {
-        var localData = localStorage.getItem('daehan_members');
-        if (localData && !members.length) {
-            try {
-                members = JSON.parse(localData);
-                renderLists();
-            } catch(e) {}
-        }
-
         fetch(GAS_URL)
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (Array.isArray(data) && data.length > 0) {
-                    if (JSON.stringify(members) !== JSON.stringify(data)) {
-                        members = data;
-                        localStorage.setItem('daehan_members', JSON.stringify(members));
-                        renderLists();
-                    }
+                    // 구글 시트에서 가져올 때 데이터 정제 (subs 필드가 있더라도 무시하고 필요한 값만 추출)
+                    members = data.map(function(m) {
+                        return {
+                            id: m.id || ('id_' + Math.random().toString(36).substr(2, 9)),
+                            name: m.name || '',
+                            duty: m.duty || '',
+                            king: m.king || '보유 없음',
+                            position: m.position || '상단명단',
+                            is2nd: !!m.is2nd,
+                            isAwaken: !!m.isAwaken
+                        };
+                    });
+                    localStorage.setItem('daehan_members', JSON.stringify(members));
+                    renderLists();
                 }
             })
-            .catch(function(err) { console.error(err); });
+            .catch(function(err) { 
+                console.error(err);
+                // 통신 실패 시 로컬스토리지 백업 데이터 활용
+                var localData = localStorage.getItem('daehan_members');
+                if (localData && !members.length) {
+                    try {
+                        members = JSON.parse(localData);
+                        renderLists();
+                    } catch(e) {}
+                }
+            });
     }
 
     function saveMemberData() {
@@ -180,9 +191,6 @@
         var regContainer = document.getElementById('regularList');
         var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
         var selectedKing = document.getElementById('searchKing').value;
-
-        // 전체 카운트 계산용 필터링 (화면 조건과 무관하게 전체 데이터 수, 혹은 조건에 맞는 수? 여기서는 전체 등록된 멤버 총원 또는 검색된 인원)
-        // 요구사항: "직책에 관계없이 화면에 필터링되어 나오는 모든 인원을 합산하여 02 상단명단 (총 OO명)으로 노출"
         
         if (!keyword && !selectedKing) {
             regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>';
@@ -251,7 +259,6 @@
                 target.position = document.getElementById('addPosition').value;
                 target.is2nd = document.getElementById('check2nd').checked;
                 target.isAwaken = document.getElementById('checkAwaken').checked;
-                delete target.subs; // 기존 부캐 데이터 잔여 방지
             }
             alert('수정되었습니다!');
             resetForm();
