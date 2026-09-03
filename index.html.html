@@ -28,6 +28,10 @@
         .filter-row { margin-bottom: 15px; }
         .search-select { width: 100%; padding: 12px 15px; border: 1px solid #d4c4a8; border-radius: 4px; font-size: 15px; outline: none; background: #fff; color: #333; }
 
+        /* 임원진 고정 카드 그리드 스타일 */
+        .exec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 30px; }
+        .exec-card { background: #faf7f2; border: 1px solid #d4c4a8; border-radius: 6px; padding: 12px; display: flex; align-items: center; }
+
         .pw-box { display: none; background: #fff; border: 2px solid #b8860b; padding: 15px; text-align: center; max-width: 300px; margin: 15px auto; border-radius: 6px; }
         .pw-box input { padding: 8px; border: 1px solid #ccc; width: 120px; border-radius: 4px; }
         .pw-box button { background: #111; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; }
@@ -97,7 +101,14 @@
         </div>
     </div>
 
-    <div class="section-header" style="margin-top:20px;">
+    <!-- 01 임원진 고정 영역 -->
+    <div class="section-header" style="margin-top:10px;">
+        <div class="section-title">01 임원진 <span class="member-count" id="execCount">(0명)</span></div>
+    </div>
+    <div id="executiveGrid" class="exec-grid"></div>
+
+    <!-- 02 상단명단 영역 -->
+    <div class="section-header">
         <div class="section-title">02 상단명단 <span class="member-count" id="totalCount">(0명)</span></div>
         <div class="search-container">
             <div class="search-box-inline">
@@ -128,7 +139,6 @@
     var members = [];
     var syncChannel = new BroadcastChannel('daehan_guild_sync');
 
-    // 다른 탭/창에서 변경 사항이 생겼을 때 즉시 수신
     syncChannel.onmessage = function(event) {
         if (event.data && Array.isArray(event.data)) {
             members = event.data;
@@ -137,7 +147,6 @@
     };
 
     function loadMemberData(isInitial) {
-        // 최초 로드시만 로컬스토리지 데이터를 먼저 빠르게 띄워 딜레이 체감 제거
         if (isInitial) {
             var localData = localStorage.getItem('daehan_members');
             if (localData) {
@@ -171,12 +180,10 @@
     }
 
     function saveMemberData() {
-        // 로컬에 즉시 반영 및 화면 렌더링 (서버 응답을 기다리지 않아 즉각 반응)
         localStorage.setItem('daehan_members', JSON.stringify(members));
         renderLists();
         syncChannel.postMessage(members);
 
-        // 백그라운드에서 구글 시트에 비동기 저장
         fetch(GAS_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -190,6 +197,45 @@
     }
 
     function renderLists() {
+        // 공통 정렬 함수 (가나다라 순)
+        function sortByName(a, b) {
+            return (a.name || '').localeCompare(b.name || '', 'ko');
+        }
+
+        // 1. 01 임원진 영역 렌더링 (임원진도 가나다순 정렬)
+        var execContainer = document.getElementById('executiveGrid');
+        execContainer.innerHTML = '';
+        var execMembers = members.filter(function(m) { return m.position === '임원진'; }).sort(sortByName);
+        document.getElementById('execCount').innerText = '(' + execMembers.length + '명)';
+
+        execMembers.forEach(function(member, index) {
+            var uniqueId = member.id || ('exec_' + index);
+            var card = document.createElement('div');
+            card.className = 'exec-card';
+
+            var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
+            var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
+
+            var actionBtns = '';
+            if (isAdminLoggedIn()) {
+                actionBtns = '<div class="admin-actions" style="margin-left:auto;">' +
+                    '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                    '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                    '</div>';
+            }
+
+            card.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
+                '<div class="info-box"><div class="name-line">' + (member.name||'') + '</div>' +
+                '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
+
+            execContainer.appendChild(card);
+        });
+
+        if (execMembers.length === 0) {
+            execContainer.innerHTML = '<div class="guide-text" style="grid-column:1/-1;">등록된 임원진이 없습니다.</div>';
+        }
+
+        // 2. 02 상단명단 영역 렌더링 (검색 및 필터 조건 적용 후 가나다순 정렬)
         var regContainer = document.getElementById('regularList');
         var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
         var selectedKing = document.getElementById('searchKing').value;
@@ -199,49 +245,48 @@
             document.getElementById('totalCount').innerText = '(0명)';
         } else {
             regContainer.innerHTML = '';
-            var matchCount = 0;
-
-            members.forEach(function(member, index) {
-                var isMatch = true;
+            
+            // 조건에 맞는 멤버들을 필터링하고 가나다순으로 정렬
+            var matchedMembers = members.filter(function(member) {
                 if (selectedKing && member.king !== selectedKing) {
-                    isMatch = false;
+                    return false;
                 }
                 if (keyword) {
                     var text = [member.name, member.duty, member.king, member.position].join(' ').toLowerCase();
                     if (text.indexOf(keyword) === -1) {
-                        isMatch = false;
+                        return false;
                     }
                 }
+                return true;
+            }).sort(sortByName);
 
-                if (isMatch) {
-                    matchCount++;
-                    var uniqueId = member.id || index;
-                    var li = document.createElement('li');
-                    li.className = 'member-item';
+            matchedMembers.forEach(function(member, index) {
+                var uniqueId = member.id || index;
+                var li = document.createElement('li');
+                li.className = 'member-item';
 
-                    var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
-                    var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
-                    
-                    var actionBtns = '';
-                    if (isAdminLoggedIn()) {
-                        actionBtns = '<div class="admin-actions">' +
-                            '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
-                            '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
-                            '</div>';
-                    }
-
-                    li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
-                        '<div class="info-box"><div class="name-line">' + (member.name||'') + ' <span style="font-size:12px; color:#b8860b; font-weight:normal;">[' + (member.position||'') + ']</span></div>' +
-                        '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
-
-                    regContainer.appendChild(li);
+                var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
+                var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
+                
+                var actionBtns = '';
+                if (isAdminLoggedIn()) {
+                    actionBtns = '<div class="admin-actions">' +
+                        '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                        '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                        '</div>';
                 }
+
+                li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
+                    '<div class="info-box"><div class="name-line">' + (member.name||'') + ' <span style="font-size:12px; color:#b8860b; font-weight:normal;">[' + (member.position||'') + ']</span></div>' +
+                    '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
+
+                regContainer.appendChild(li);
             });
 
-            if (matchCount === 0) {
+            if (matchedMembers.length === 0) {
                 regContainer.innerHTML = '<div class="guide-text">조건에 일치하는 상단원이 없습니다.</div>';
             }
-            document.getElementById('totalCount').innerText = '(' + matchCount + '명)';
+            document.getElementById('totalCount').innerText = '(' + matchedMembers.length + '명)';
         }
     }
 
@@ -346,7 +391,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadMemberData(true);
 
-        // 빈번한 덮어쓰기 충돌을 방지하기 위해 주기적 동기화 간격을 10초로 조절하고 입력 중 방해받지 않도록 개선
         setInterval(function() {
             if (!isAdminLoggedIn() || document.getElementById('editIndex').value === '') {
                 loadMemberData(false);
