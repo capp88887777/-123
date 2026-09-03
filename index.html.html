@@ -121,10 +121,10 @@
     <div id="executiveGrid" class="exec-grid"></div>
 
     <div class="section-header" style="margin-top:45px;">
-        <div class="section-title">02 상단명단 <span class="member-count" id="totalCount">(0명)</span></div>
+        <div class="section-title">02 상단명단 <span class="member-count" id="totalCount">(임원진 포함 총 0명)</span></div>
         <div class="search-container">
             <div class="search-box-inline">
-                <input type="text" id="searchInput" class="search-input" placeholder="명단 검색" autocomplete="off">
+                <input type="text" id="searchInput" class="search-input" placeholder="명단 검색 (임원진 포함)" autocomplete="off">
                 <button type="button" class="search-btn" id="searchBtn">검색</button>
             </div>
         </div>
@@ -217,92 +217,104 @@
         var keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
         var selectedKing = document.getElementById('searchKing').value;
 
-        var execCount = 0;
+        // 직책 순위 정렬 기준 (임원진 고정 표시용)
+        var dutyOrder = { '대방': 1, '도방': 2, '대행수': 3, '행수': 4, '행동대장': 5, '서기': 6 };
+        function getDutyRank(duty) {
+            var trimmed = (duty || '').trim();
+            return dutyOrder[trimmed] !== undefined ? dutyOrder[trimmed] : 99;
+        }
 
-        members.forEach(function(member, index) {
-            var uniqueId = member.id || index;
+        // 임원진 필터링 및 직책순 정렬
+        var execMembers = members.filter(function(m) { return m.position === '임원진'; }).sort(function(a, b) {
+            var rankA = getDutyRank(a.duty);
+            var rankB = getDutyRank(b.duty);
+            if (rankA !== rankB) return rankA - rankB;
+            return (a.name || '').localeCompare(b.name || '', 'ko');
+        });
 
-            if (member.position === '임원진') {
-                execCount++;
-                var card = document.createElement('div');
-                card.className = 'exec-card';
-                
-                var adminBtnsHtml = '';
-                if (isAdminLoggedIn()) {
-                    adminBtnsHtml = '<div class="exec-admin-btns">' +
-                        '<button class="btn-e" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
-                        '<button class="btn-d" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
-                        '</div>';
-                }
-
-                var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
-
-                card.innerHTML = adminBtnsHtml +
-                    '<div class="exec-name">' + (member.name || '') + noteHtml + '</div>' +
-                    '<div class="exec-duty">' + (member.duty || '임원진') + '</div>' +
-                    '<div class="exec-subinfo">부캐: ' + (member.subs || '없음') + ' | ' + (member.king || '') + '</div>';
-                
-                execGrid.appendChild(card);
+        execMembers.forEach(function(member, index) {
+            var uniqueId = member.id || ('exec_' + index);
+            var card = document.createElement('div');
+            card.className = 'exec-card';
+            
+            var adminBtnsHtml = '';
+            if (isAdminLoggedIn()) {
+                adminBtnsHtml = '<div class="exec-admin-btns">' +
+                    '<button class="btn-e" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                    '<button class="btn-d" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                    '</div>';
             }
+
+            var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
+
+            card.innerHTML = adminBtnsHtml +
+                '<div class="exec-name">' + (member.name || '') + noteHtml + '</div>' +
+                '<div class="exec-duty">' + (member.duty || '임원진') + '</div>' +
+                '<div class="exec-subinfo">부캐: ' + (member.subs || '없음') + ' | ' + (member.king || '') + '</div>';
+            
+            execGrid.appendChild(card);
         });
 
         if (execGrid.children.length === 0) {
             execGrid.innerHTML = '<div class="guide-text" style="grid-column: 1/-1;">등록된 임원진이 없습니다.</div>';
         }
 
+        // 상단명단 (임원진 포함 여부 선택 또는 통합 검색 조건 처리)
         if (!keyword && !selectedKing) {
             regContainer.innerHTML = '<div class="guide-text">천왕을 선택하거나 검색어를 입력하면 상단원 명단이 표시됩니다.</div>';
         } else {
             regContainer.innerHTML = '';
-            var matchCount = 0;
-
-            members.forEach(function(member, index) {
-                if (member.position !== '임원진') {
-                    var isMatch = true;
-                    if (selectedKing && member.king !== selectedKing) {
-                        isMatch = false;
-                    }
-                    if (keyword) {
-                        var text = [member.name, member.subs, member.note, member.duty, member.king].join(' ').toLowerCase();
-                        if (text.indexOf(keyword) === -1) {
-                            isMatch = false;
-                        }
-                    }
-
-                    if (isMatch) {
-                        matchCount++;
-                        var uniqueId = member.id || index;
-                        var li = document.createElement('li');
-                        li.className = 'member-item';
-
-                        var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
-                        var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
-                        var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
-                        
-                        var actionBtns = '';
-                        if (isAdminLoggedIn()) {
-                            actionBtns = '<div class="admin-actions">' +
-                                '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
-                                '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
-                                '</div>';
-                        }
-
-                        li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
-                            '<div class="info-box"><div class="name-line">' + (member.name||'') + noteHtml + ' <span>/' + (member.subs||'없음') + '</span></div>' +
-                            '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
-
-                        regContainer.appendChild(li);
+            
+            // 일반 상단원 + 임원진 모두 검색 대상에 포함 (가나다순 정렬 적용)
+            var matchedMembers = members.filter(function(member) {
+                if (selectedKing && member.king !== selectedKing) {
+                    return false;
+                }
+                if (keyword) {
+                    var text = [member.name, member.subs, member.note, member.duty, member.king, member.position].join(' ').toLowerCase();
+                    if (text.indexOf(keyword) === -1) {
+                        return false;
                     }
                 }
+                return true;
+            }).sort(function(a, b) {
+                return (a.name || '').localeCompare(b.name || '', 'ko');
             });
 
-            if (matchCount === 0) {
+            matchedMembers.forEach(function(member, index) {
+                var uniqueId = member.id || index;
+                var li = document.createElement('li');
+                li.className = 'member-item';
+
+                var tag1 = member.is2nd ? '<div class="status-tag">2차 완료</div>' : '<div class="status-tag empty">-</div>';
+                var tag2 = member.isAwaken ? '<div class="status-tag">각성 완료</div>' : '<div class="status-tag empty">-</div>';
+                var noteHtml = member.note ? '<span class="note-text">(' + member.note + ')</span>' : '';
+                
+                var actionBtns = '';
+                if (isAdminLoggedIn()) {
+                    actionBtns = '<div class="admin-actions">' +
+                        '<button class="btn-edit" type="button" onclick="editMember(\'' + uniqueId + '\')">수정</button>' +
+                        '<button class="btn-delete" type="button" onclick="deleteMember(\'' + uniqueId + '\')">삭제</button>' +
+                        '</div>';
+                }
+
+                var positionBadge = member.position === '임원진' ? ' <span style="font-size:12px; color:#b8860b; font-weight:bold;">[임원진]</span>' : '';
+
+                li.innerHTML = '<div class="tag-box">' + tag1 + tag2 + '</div>' +
+                    '<div class="info-box"><div class="name-line">' + (member.name||'') + noteHtml + positionBadge + ' <span>/' + (member.subs||'없음') + '</span></div>' +
+                    '<div class="detail-line">' + (member.king||'') + ' ' + (member.duty||'') + '</div></div>' + actionBtns;
+
+                regContainer.appendChild(li);
+            });
+
+            if (matchedMembers.length === 0) {
                 regContainer.innerHTML = '<div class="guide-text">조건에 일치하는 상단원이 없습니다.</div>';
             }
         }
 
-        document.getElementById('executiveCount').innerText = '(' + execCount + '명)';
-        document.getElementById('totalCount').innerText = '(' + members.length + '명)';
+        document.getElementById('executiveCount').innerText = '(' + execMembers.length + '명)';
+        // 임원진을 포함한 전체 상단원 인원이 카운트되도록 반영
+        document.getElementById('totalCount').innerText = '(임원진 포함 총 ' + members.length + '명)';
     }
 
     function saveMember() {
