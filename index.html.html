@@ -160,7 +160,6 @@
     };
 
     function loadMemberData(isSilent) {
-        // 로컬 데이터 즉시 로드 (페이지 진입 시 지연 방지)
         var localData = localStorage.getItem('daehan_members');
         if (localData && !members.length) {
             try {
@@ -169,22 +168,21 @@
             } catch(e) {}
         }
 
-        // 구글 시트 최신 데이터 비동기 호출 (캐시 방지용 timestamp 추가)
         fetch(GAS_URL + '?t=' + new Date().getTime())
             .then(function(res) { return res.json(); })
             .then(function(data) {
                 if (Array.isArray(data) && data.length > 0) {
-                    members = data.map(function(m) {
+                    members = data.map(function(m, idx) {
                         return {
-                            id: m.id || ('id_' + Math.random().toString(36).substr(2, 9)),
+                            id: m.id || ('id_' + idx),
                             name: m.name || '',
-                            subs: m.subs || '',
+                            subs: m.subs !== undefined ? String(m.subs) : '',
                             note: m.note || '',
                             duty: m.duty || '',
                             king: m.king || '보유 없음',
                             position: m.position || '상단명단',
-                            is2nd: !!m.is2nd,
-                            isAwaken: !!m.isAwaken
+                            is2nd: m.is2nd === true || m.is2nd === 'true' || m.is2nd === 'O',
+                            isAwaken: m.isAwaken === true || m.isAwaken === 'true' || m.isAwaken === 'O'
                         };
                     });
                     localStorage.setItem('daehan_members', JSON.stringify(members));
@@ -195,12 +193,10 @@
     }
 
     function saveMemberData() {
-        // 즉시 로컬 반영 및 화면 렌더링 (낙관적 업데이트)
         localStorage.setItem('daehan_members', JSON.stringify(members));
         renderLists();
         syncChannel.postMessage(members);
 
-        // 구글 시트로 백그라운드 전송
         fetch(GAS_URL, {
             method: 'POST',
             mode: 'no-cors',
@@ -324,7 +320,7 @@
         var editIdx = document.getElementById('editIndex').value;
 
         if (editIdx !== '') {
-            var target = members.find(function(m) { return String(m.id || members.indexOf(m)) === String(editIdx); });
+            var target = members.find(function(m) { return String(m.id) === String(editIdx); });
             if (target) {
                 target.name = name;
                 target.subs = document.getElementById('addSubs').value.trim();
@@ -339,7 +335,7 @@
             resetForm();
         } else {
             var newMember = {
-                id: 'id_' + new Date().getTime() + '_' + Math.random().toString(36).substr(2, 5),
+                id: 'id_' + new Date().getTime(),
                 name: name,
                 subs: document.getElementById('addSubs').value.trim(),
                 note: document.getElementById('addNote').value.trim(),
@@ -358,7 +354,7 @@
     }
 
     function editMember(targetId) {
-        var member = members.find(function(m) { return String(m.id || members.indexOf(m)) === String(targetId); });
+        var member = members.find(function(m) { return String(m.id) === String(targetId); });
         if (!member) return;
 
         document.getElementById('editIndex').value = targetId;
@@ -393,7 +389,7 @@
     function deleteMember(targetId) {
         if (confirm("정말 삭제하시겠습니까?")) {
             members = members.filter(function(m) {
-                return String(m.id || members.indexOf(m)) !== String(targetId);
+                return String(m.id) !== String(targetId);
             });
             saveMemberData();
         }
@@ -427,7 +423,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadMemberData();
 
-        // 자동 동기화 주기를 4초로 단축하여 모바일/PC 간 반영 속도 개선
         setInterval(function() {
             loadMemberData();
         }, 4000);
