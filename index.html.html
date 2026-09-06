@@ -3,10 +3,9 @@ function doGet(e) {
   var rows = sheet.getDataRange().getValues();
   var list = [];
   
-  // 첫 번째 행은 헤더이므로 i=1부터 시작
   for (var i = 1; i < rows.length; i++) {
     var r = rows[i];
-    if (r[1] && String(r[1]).trim() !== "") { // 이름이 있는 경우만 수집
+    if (r[1] && String(r[1]).trim() !== "") {
       list.push({
         id: String(r[0] || "member_" + i),
         name: String(r[1] || ""),
@@ -28,16 +27,14 @@ function doGet(e) {
 function doPost(e) {
   var lock = LockService.getScriptLock();
   try {
-    lock.waitLock(10000); // 동시 요청 충돌 방지 락
+    lock.waitLock(10000);
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var data = JSON.parse(e.postData.contents);
     
-    // 시트 초기화 후 헤더 재작성
     sheet.clear();
     sheet.appendRow(["ID", "본캐 닉네임", "부캐릭터", "사천왕", "2차 완료", "각성 완료", "직책", "비고", "직책분류"]);
     
     var rowsToAppend = [];
-    // 중복 방지를 위해 고유 ID 기준으로 데이터 정제 (Map 이용)
     var uniqueMap = new Map();
     
     data.forEach(function(m) {
