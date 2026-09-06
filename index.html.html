@@ -5,39 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>大韓民國 상단 - 현무서버</title>
     <style>
+        /* CSS 초기화 */
         * { box-sizing: border-box; }
         body { font-family: 'Malgun Gothic', sans-serif; padding: 0; margin: 0; background-color: #ffffff; color: #333; }
 
-        /* --- 기존 기능 유지 + 헤더 배경 이미지 적용 --- */
+        /* --- 수정된 헤더 스타일 (전체 너비 100% 고정) --- */
         .header {
-            /* 생성된 일러스트 이미지를 배경으로 설정합니다. 
-               (만약 깃허브 레포지토리에 직접 이미지를 업로드하셨다면 경로를 'assets/images/파일명.png' 등으로 수정해주세요) */
+            /* 생성된 이미지를 배경으로 설정 */
             background-image: url('https://replicate.delivery/xpbh/p569f8Ff5K7yI6L62N6A99a8C6n7Y7L8Z8E8A8E8A8E8A8E8VQAo/output.png');
-            background-size: cover;      /* 이미지가 영역에 꽉 차도록 조절 */
-            background-position: center; /* 이미지가 중앙에 오도록 정렬 */
-            background-repeat: no-repeat;/* 이미지 반복 방지 */
+            /* 너비는 항상 화면의 100% */
+            width: 100%;
+            /* 이미지 비율이 깨지지 않고 영역을 꽉 채우도록 설정 */
+            background-size: cover;
+            /* 이미지가 중앙에 오도록 정렬 */
+            background-position: center;
+            /* 이미지 반복 금지 */
+            background-repeat: no-repeat;
+            /* 텍스트 중앙 정렬 */
             text-align: center;
-            padding: 50px 20px;
+            /* 내부 여백 (위아래로 충분히 주어 이미지 내용이 보이게 함) */
+            padding: 60px 20px;
             color: white;
-            position: relative;          /* 오버레이를 위한 기준점 */
+            position: relative;
+            /* 상단에 빈틈없이 붙이기 */
+            margin-top: 0;
+            /* 혹시 모를 스크롤바 생성 방지 */
+            overflow: hidden;
         }
 
-        /* 이미지 위에 글씨나 버튼이 묻히지 않도록 반투명한 어두운 레이어를 살짝 깔아 가독성을 높여줍니다. */
+        /* 이미지 위에 글씨나 버튼 가독성을 위한 어두운 오버레이 */
         .header::before {
             content: "";
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.25); /* 어두운 정도 조절 가능 (0.0 ~ 1.0) */
+            /* 어두운 정도 조절 (0.25는 25% 어둡게) */
+            background-color: rgba(0, 0, 0, 0.3);
             z-index: 1;
         }
 
-        /* 헤더 안의 기존 요소들(글자, 버튼)이 어두운 레이어 위로 오도록 설정 */
+        /* 헤더 안의 내용물들이 오버레이보다 위로 오도록 설정 (버튼 클릭 등 기능 보존) */
         .header > * { position: relative; z-index: 2; }
-        /* --------------------------------------------- */
+        /* ------------------------------------------------ */
 
-        .title-main { font-size: 34px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(0,0,0,0.6); }
+        /* 나머지 요소 스타일 유지 */
+        .title-main { font-size: 34px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); }
         .server-tag { background: #b8860b; color: #fff; padding: 3px 15px; border-radius: 15px; font-size: 14px; display: inline-block; margin-bottom: 5px; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-        .title-sub { font-size: 22px; font-weight: bold; color: #eee; text-shadow: 1px 1px 3px rgba(0,0,0,0.6); }
+        .title-sub { font-size: 22px; font-weight: bold; color: #eee; text-shadow: 1px 1px 3px rgba(0,0,0,0.7); }
         .admin-btn-container { margin-top: 15px; text-align: center; }
         .admin-btn { background: #b8860b; color: #fff; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
         
@@ -141,8 +154,8 @@
             <button class="btn-download" id="downloadBtn" type="button">📥 명단 엑셀 다운로드</button>
         </div>
     </div>
-    
-    <!-- 이하 기존의 스크립트 및 내용 구조 유지 -->
+
+    <!-- 기존 스크립트 및 내용물 -->
 </div>
 
 </body>
