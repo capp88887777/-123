@@ -19,7 +19,6 @@ button,input,select{font-family:inherit}
 .admin-login:hover{transform:translateX(-50%) translateY(-2px)}
 .container{width:min(1400px,96%);margin:15px auto 40px}
 
-/* 유튜브 음악 플레이어 스타일 바 */
 .music-bar{background:#fff;border-radius:16px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 14px rgba(80,50,120,.06);flex-wrap:wrap;gap:10px}
 .music-info{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#614495}
 .music-controls{display:flex;gap:6px}
@@ -231,7 +230,7 @@ window.addEventListener("load", () => {
     const cached = localStorage.getItem("대한민국상단_캐시");
     if(cached){
       members = JSON.parse(cached);
-      render(); // 캐시 데이터가 있으면 즉시 렌더링하여 지연 시간 제거
+      render();
     }
   } catch(e){}
   loadMembers();
@@ -252,9 +251,7 @@ async function loadMembers(){
       rawList.forEach((m, idx) => {
         const normalized = normalizeMember(m, idx);
         if(normalized.name) {
-          if(uniqueMap.has(normalized.name)){
-            normalized.id = "member_" + Date.now() + "_" + Math.floor(Math.random()*100000);
-          }
+          // 이름(닉네임)을 기준으로 완전 고유하게 처리하여 중복 카운트 방지
           uniqueMap.set(normalized.name, normalized);
         }
       });
@@ -273,8 +270,9 @@ async function loadMembers(){
 
 function normalizeMember(m, index){
   let cleanId = String(m.id || "").trim();
+  // 잘못되었거나 지저분한 ID 구조를 깔끔하게 정돈
   if(!cleanId || cleanId.startsWith("member_17887")) {
-    cleanId = "member_" + Date.now() + "_" + index + "_" + Math.floor(Math.random()*10000);
+    cleanId = "member_" + (index + 1);
   }
   return {
     id: cleanId,
@@ -313,7 +311,6 @@ function render(){
  document.getElementById("normalCount").textContent=normal.length;
  document.getElementById("execTitle").textContent=executives.length;
 
- // 한 번에 문자열을 조립하여 DOM 반영 속도를 최적화
  let execHtml = executives.length > 0 ? executives.map(m=>`
    <div class="exec-card">
      <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
@@ -401,7 +398,7 @@ async function saveMember(){
  if(!name){alert("본캐 닉네임을 입력해주세요.");return}
 
  const member={
-   id: editId || ("member_" + Date.now() + "_" + Math.floor(Math.random()*100000)),
+   id: editId || ("member_" + (members.length + 1)),
    name,
    subs:document.getElementById("subs").value.trim(),
    note:document.getElementById("note").value.trim(),
