@@ -69,7 +69,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 <body>
 
 <header class="header">
-  <img src="https://i.ibb.co/60qY9s3/banner.png" alt="大韓民國 상단 현무서버">
+  <img src="assets/banner.png" alt="大韓民國 상단 현무서버" onerror="this.src='banner.png'">
   <button class="admin-login" onclick="adminLogin(event)">⚙ 관리자 인증 모드</button>
 </header>
 
@@ -162,7 +162,7 @@ async function loadMembers(){
    const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
    const data=await res.json();
    
-   // 이름이 존재하고 공백이 아닌 유효한 데이터만 확실하게 필터링
+   // 이름이 없거나 빈 문자열인 경우 철저하게 제외
    members = Array.isArray(data) 
      ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "" && String(m.name || "").trim() !== "undefined" && String(m.name || "").trim() !== "null").map(normalizeMember) 
      : [];
