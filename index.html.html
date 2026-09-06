@@ -108,9 +108,9 @@ footer{text-align:center;color:#888;font-size:11px;padding:15px}
   </div>
 
   <div class="stats">
-    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">-</div></div>
-    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">-</div></div>
-    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">-</div></div>
+    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">0</div></div>
+    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">0</div></div>
+    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">0</div></div>
   </div>
 
   <div class="search-box">
@@ -127,7 +127,7 @@ footer{text-align:center;color:#888;font-size:11px;padding:15px}
     </div>
   </div>
 
-  <div class="section-title">👑 임원진 (<span id="execTitle">-</span>명)</div>
+  <div class="section-title">👑 임원진 (<span id="execTitle">0</span>명)</div>
   <div id="executives" class="executives"></div>
 
   <div class="section-title">📋 상단 명단 <span style="font-size:11px;color:#888;font-weight:400;float:right;line-height:22px;">(↔ 좌우로 밀어서 확인)</span></div>
@@ -242,21 +242,26 @@ async function loadMembers(){
     const res = await fetch(API_URL + "?t=" + Date.now(), {cache: "no-store"});
     const data = await res.json();
     
-    const rawList = Array.isArray(data) 
-      ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "" && String(m.name || "").trim() !== "undefined") 
-      : [];
-
+    const rawList = Array.isArray(data) ? data : [];
     if(rawList.length > 0){
       const uniqueMap = new Map();
       rawList.forEach((m, idx) => {
-        const normalized = normalizeMember(m, idx);
-        if(normalized.name) {
-          // 이름(닉네임)을 기준으로 완전 고유하게 처리하여 중복 카운트 방지
-          uniqueMap.set(normalized.name, normalized);
+        const name = String(m.name || "").trim();
+        if(name && name !== "undefined" && name !== "null") {
+          uniqueMap.set(name, {
+            id: "member_" + (uniqueMap.size + 1),
+            name: name,
+            subs: String(m.subs || "").trim(),
+            note: String(m.note || "").trim(),
+            duty: String(m.duty || "").trim(),
+            king: String(m.king || "보유 없음").trim(),
+            position: String(m.position || "상단명단").trim(),
+            is2nd: Boolean(m.is2nd),
+            isAwaken: Boolean(m.isAwaken)
+          });
         }
       });
       members = Array.from(uniqueMap.values());
-      
       try { localStorage.setItem("대한민국상단_캐시", JSON.stringify(members)); } catch(e){}
     }
 
@@ -268,27 +273,50 @@ async function loadMembers(){
   }
 }
 
-function normalizeMember(m, index){
-  let cleanId = String(m.id || "").trim();
-  // 잘못되었거나 지저분한 ID 구조를 깔끔하게 정돈
-  if(!cleanId || cleanId.startsWith("member_17887")) {
-    cleanId = "member_" + (index + 1);
-  }
-  return {
-    id: cleanId,
-    name: String(m.name || "").trim(),
-    subs: String(m.subs || "").trim(),
-    note: String(m.note || "").trim(),
-    duty: String(m.duty || "").trim(),
-    king: m.king || "보유 없음",
-    position: m.position || "상단명단",
-    is2nd: toBoolean(m.is2nd),
-    isAwaken: toBoolean(m.isAwaken)
-  };
-}
+function render(){
+  const search=document.getElementById("search").value.trim().toLowerCase();
+  const king=document.getElementById("kingFilter").value;
 
-function toBoolean(v){
- return v===true||v==="true"||v==="TRUE"||v===1||v==="1";
+  const executives=members.filter(m=>m.position==="임원진");
+  const normal=members.filter(m=>m.position!=="임원진");
+
+  document.getElementById("totalCount").textContent=members.length;
+  document.getElementById("execCount").textContent=executives.length;
+  document.getElementById("normalCount").textContent=normal.length;
+  document.getElementById("execTitle").textContent=executives.length;
+
+  let execHtml = executives.length > 0 ? executives.map(m=>`
+    <div class="exec-card">
+      <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
+      <div class="exec-duty">${escapeHTML(m.duty||"임원진")}</div>
+    </div>
+  `).join("") : '<div style="color:#888;font-size:13px;padding:10px;grid-column:1/-1;text-align:center;">임원진이 없습니다.</div>';
+  document.getElementById("executives").innerHTML = execHtml;
+
+  const filtered=members.filter(m=>{
+    const text=(m.name+" "+m.subs+" "+m.king).toLowerCase();
+    if(search&&!text.includes(search))return false;
+    if(king&&m.king!==king)return false;
+    return true;
+  });
+
+  filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+
+  let listHtml = filtered.length > 0 ? filtered.map(m=>`
+    <tr>
+      <td>${escapeHTML(m.duty||"-")}</td>
+      <td class="main-name">${escapeHTML(m.name)}</td>
+      <td>${escapeHTML(m.subs||"-")}</td>
+      <td><span class="king-badge ${kingClass(m.king)}">${escapeHTML(m.king||"보유 없음")}</span></td>
+      <td>${m.is2nd?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
+      <td>${m.isAwaken?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
+      <td>${escapeHTML(m.note||"-")}</td>
+      <td>${adminMode?
+        `<button class="manage-btn edit-btn" onclick="editMember('${escapeJS(m.id)}')">수정</button>
+         <button class="manage-btn delete-btn" onclick="deleteMember('${escapeJS(m.id)}')">삭제</button>`:"-"}</td>
+    </tr>
+  `).join("") : '<tr><td colspan="8" style="padding:20px;color:#888;">검색 결과가 없습니다.</td></tr>';
+  document.getElementById("memberList").innerHTML = listHtml;
 }
 
 function kingClass(k){
@@ -297,52 +325,6 @@ function kingClass(k){
  if(k==="광목천왕")return"king-gwangmok";
  if(k==="증장천왕")return"king-jeungjang";
  return"king-none";
-}
-
-function render(){
- const search=document.getElementById("search").value.trim().toLowerCase();
- const king=document.getElementById("kingFilter").value;
-
- const executives=members.filter(m=>m.position==="임원진");
- const normal=members.filter(m=>m.position!=="임원진");
-
- document.getElementById("totalCount").textContent=members.length;
- document.getElementById("execCount").textContent=executives.length;
- document.getElementById("normalCount").textContent=normal.length;
- document.getElementById("execTitle").textContent=executives.length;
-
- let execHtml = executives.length > 0 ? executives.map(m=>`
-   <div class="exec-card">
-     <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
-     <div class="exec-duty">${escapeHTML(m.duty||"임원진")}</div>
-   </div>
- `).join("") : '<div style="color:#888;font-size:13px;padding:10px;grid-column:1/-1;text-align:center;">임원진이 없습니다.</div>';
- document.getElementById("executives").innerHTML = execHtml;
-
- const filtered=members.filter(m=>{
-   const text=(m.name+" "+m.subs+" "+m.king).toLowerCase();
-   if(search&&!text.includes(search))return false;
-   if(king&&m.king!==king)return false;
-   return true;
- });
-
- filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-
- let listHtml = filtered.length > 0 ? filtered.map(m=>`
-   <tr>
-     <td>${escapeHTML(m.duty||"-")}</td>
-     <td class="main-name">${escapeHTML(m.name)}</td>
-     <td>${escapeHTML(m.subs||"-")}</td>
-     <td><span class="king-badge ${kingClass(m.king)}">${escapeHTML(m.king||"보유 없음")}</span></td>
-     <td>${m.is2nd?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
-     <td>${m.isAwaken?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
-     <td>${escapeHTML(m.note||"-")}</td>
-     <td>${adminMode?
-       `<button class="manage-btn edit-btn" onclick="editMember('${escapeJS(m.id)}')">수정</button>
-        <button class="manage-btn delete-btn" onclick="deleteMember('${escapeJS(m.id)}')">삭제</button>`:"-"}</td>
-   </tr>
- `).join("") : '<tr><td colspan="8" style="padding:20px;color:#888;">검색 결과가 없습니다.</td></tr>';
- document.getElementById("memberList").innerHTML = listHtml;
 }
 
 function adminLogin(e){
@@ -409,9 +391,13 @@ async function saveMember(){
    isAwaken:document.getElementById("isAwaken").checked
  };
 
- const idx=members.findIndex(m=>String(m.id)===String(member.id));
+ const idx=members.findIndex(m=>String(m.name)===String(member.name));
  if(idx>=0){
-   members[idx]=member;
+   members[idx]=member; // 이름이 같으면 덮어쓰기 (중복 방지)
+ } else if(editId){
+   const editIdx=members.findIndex(m=>String(m.id)===String(editId));
+   if(editIdx>=0) members[editIdx]=member;
+   else members.push(member);
  }else{
    members.push(member);
  }
@@ -421,7 +407,7 @@ async function saveMember(){
  render();
  updateCache();
  setStatus("저장 완료!");
- backgroundSave();
+ await backgroundSave();
 }
 
 async function deleteMember(id){
@@ -434,7 +420,7 @@ async function deleteMember(id){
  render();
  updateCache();
  setStatus("삭제 완료!");
- backgroundSave();
+ await backgroundSave();
 }
 
 function updateCache(){
@@ -442,13 +428,22 @@ function updateCache(){
 }
 
 async function backgroundSave(){
+ setStatus("구글 시트에 반영 중...");
  try{
-   await fetch(API_URL,{
+   const res = await fetch(API_URL,{
      method:"POST",
      headers:{"Content-Type":"text/plain;charset=utf-8"},
      body:JSON.stringify(members)
    });
- }catch(e){}
+   const data = await res.json();
+   if(data.result === "success") {
+     setStatus("동기화 완료!");
+   } else {
+     setStatus("시트 저장 오류 발생");
+   }
+ }catch(e){
+   setStatus("네트워크 오류 (오프라인 저장됨)");
+ }
 }
 
 function clearForm(){
@@ -475,27 +470,37 @@ function downloadBackup(){
 
 function restoreBackup(e){
  const file=e.target.files[0];
- if(!file)return;
  const reader=new FileReader();
  reader.onload=async()=>{
    try{
      const data=JSON.parse(reader.result);
-     if(!Array.isArray(data))throw new Error("백업 파일 형식이 올바르지 않습니다.");
-     if(!confirm("현재 명단을 백업 파일 내용으로 교체하고 Google Sheet에 저장할까요?"))return;
+     if(!Array.isArray(data))throw new Error("백업 파일 형식 오류");
+     if(!confirm("현재 명단을 백업 파일 내용으로 교체하고 구글 시트에 저장할까요?"))return;
      
-     const rawList = data.filter(m => m && String(m.name || "").trim() !== "");
      const uniqueMap = new Map();
-     rawList.forEach((m, idx) => {
-       const normalized = normalizeMember(m, idx);
-       if(normalized.name) { uniqueMap.set(normalized.name, normalized); }
+     data.forEach((m) => {
+       const name = String(m.name || "").trim();
+       if(name) {
+         uniqueMap.set(name, {
+           id: "member_" + (uniqueMap.size + 1),
+           name: name,
+           subs: String(m.subs || "").trim(),
+           note: String(m.note || "").trim(),
+           duty: String(m.duty || "").trim(),
+           king: String(m.king || "보유 없음").trim(),
+           position: String(m.position || "상단명단").trim(),
+           is2nd: Boolean(m.is2nd),
+           isAwaken: Boolean(m.isAwaken)
+         });
+       }
      });
      members = Array.from(uniqueMap.values());
 
      render();
      updateCache();
      setStatus("복원 완료!");
-     backgroundSave();
-   }catch(err){alert("백업 복원 실패\n"+err.message)}
+     await backgroundSave();
+   }catch(err){alert("복원 실패\n"+err.message)}
    e.target.value="";
  };
  reader.readAsText(file,"utf-8");
