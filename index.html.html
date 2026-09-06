@@ -2,7 +2,6 @@ function doGet(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   var rows = sheet.getDataRange().getValues();
   var list = [];
-  
   for (var i = 1; i < rows.length; i++) {
     var r = rows[i];
     if (r[1] && String(r[1]).trim() !== "") {
@@ -19,9 +18,7 @@ function doGet(e) {
       });
     }
   }
-  
-  return ContentService.createTextOutput(JSON.stringify(list))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(list)).setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -30,13 +27,10 @@ function doPost(e) {
     lock.waitLock(10000);
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
     var data = JSON.parse(e.postData.contents);
-    
     sheet.clear();
     sheet.appendRow(["ID", "본캐 닉네임", "부캐릭터", "사천왕", "2차 완료", "각성 완료", "직책", "비고", "직책분류"]);
-    
     var rowsToAppend = [];
     var uniqueMap = new Map();
-    
     data.forEach(function(m) {
       if (m && m.name && String(m.name).trim() !== "") {
         var id = String(m.id || ("member_" + Date.now() + "_" + Math.random()));
@@ -53,21 +47,15 @@ function doPost(e) {
         ]);
       }
     });
-    
     uniqueMap.forEach(function(row) {
       rowsToAppend.push(row);
     });
-    
     if (rowsToAppend.length > 0) {
       sheet.getRange(2, 1, rowsToAppend.length, rowsToAppend[0].length).setValues(rowsToAppend);
     }
-    
-    return ContentService.createTextOutput(JSON.stringify({status: "success", count: rowsToAppend.length}))
-      .setMimeType(ContentService.MimeType.JSON);
-      
+    return ContentService.createTextOutput(JSON.stringify({status: "success", count: rowsToAppend.length})).setMimeType(ContentService.MimeType.JSON);
   } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()})).setMimeType(ContentService.MimeType.JSON);
   } finally {
     lock.releaseLock();
   }
