@@ -9,17 +9,17 @@
         body { font-family: 'Malgun Gothic', sans-serif; padding: 0; margin: 0; background-color: #ffffff; color: #333; }
 
         /* --- 새로운 이미지 헤더 스타일 --- */
-        .header {
+        .header-container {
             position: relative;
             width: 100%;
-            background-color: #222; /* 이미지 로드 전 배경색 */
             text-align: center;
             padding: 0;
             margin: 0;
             line-height: 0; /* 이미지 하단 미세 공백 제거 */
+            background-color: #222; /* 이미지 로드 전 배경색 */
         }
         
-        .header img {
+        .header-container img {
             width: 100%;      /* 이미지가 화면 너비에 꽉 차게 */
             height: auto;     /* 이미지 비율 자동 유지 */
             display: block;
@@ -27,7 +27,7 @@
             object-fit: cover;/* 이미지가 찌그러지지 않고 비율 유지하며 영역 커버 */
         }
         
-        /* 버튼과 텍스트를 이미지 위에 띄우는 컨테이너 */
+        /* 버튼과 텍스트를 이미지 위에 띄우는 오버레이 컨테이너 */
         .header-overlay {
             position: absolute;
             top: 0;
@@ -64,7 +64,7 @@
 
         .exec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         @media(max-width: 768px) { .exec-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media(max-width: 480px) { .exec-grid { grid-template-columns: 1fr; } }
+        @media(max-width: 480px) { .exec-grid { grid-template-1fr; } }
         
         .exec-card { background-color: #fff; border: 1px solid #d4c4a8; padding: 12px 15px; text-align: center; border-radius: 2px; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         .exec-name { font-size: 16px; font-weight: bold; color: #222; margin-bottom: 4px; }
@@ -113,8 +113,10 @@
 <body>
 
 <!-- 이미지를 직접 삽입하는 새로운 헤더 구조 -->
-<div class="header">
+<div class="header-container">
+    <!-- 생성된 이미지를 여기에 넣으세요 -->
     <img src="https://replicate.delivery/xpbh/p569f8Ff5K7yI6L62N6A99a8C6n7Y7L8Z8E8A8E8A8E8A8E8VQAo/output.png" alt="大韓民國 상단 배너">
+    
     <!-- 텍스트와 버튼을 이미지 위에 오버레이하는 컨테이너 -->
     <div class="header-overlay">
         <div class="title-main">大韓民國 상단</div>
@@ -178,7 +180,7 @@
             </div>
         </div>
     </div>
-
+    
     <div class="filter-row">
         <select id="searchKing" class="search-select">
             <option value="">천왕을 선택해주세요</option>
@@ -186,8 +188,3 @@
             <option value="다문천왕">다문천왕</option>
             <option value="광목천왕">광목천왕</option>
             <option value="증장천왕">증장천왕</option>
-            <option value="보유 없음">보유 없음</option>
-        </select>
-    </div>
-
-    <ul id="regularList" class="member
