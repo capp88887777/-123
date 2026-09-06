@@ -14,7 +14,7 @@ button,input,select{font-family:inherit}
  position:absolute;left:50%;top:78%;bottom:auto;transform:translateX(-50%);z-index:20;
  border:0;border-radius:30px;padding:12px 25px;
  background:#d99b16;color:#fff;font-size:15px;font-weight:900;
- box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;white-space:nowrap;
+ box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;z-index:20;white-space:nowrap;
 }
 .admin-login:hover{transform:translateX(-50%) translateY(-2px)}
 .container{width:min(1400px,94%);margin:22px auto 45px}
@@ -169,10 +169,11 @@ async function loadMembers(){
   try{
     const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
     const data=await res.json();
-    
-    // 유효한 본캐 닉네임이 존재하는 행만 엄격하게 필터링
-    members = Array.isArray(data) 
-      ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "").map(normalizeMember) 
+
+    // 빈 행/빈 회원 데이터 제거
+    // 본캐 닉네임이 없는 행은 실제 상단원으로 취급하지 않음
+    members=Array.isArray(data)
+      ? data.map(normalizeMember).filter(m => String(m.name || "").trim() !== "")
       : [];
 
     render();
@@ -187,10 +188,10 @@ async function loadMembers(){
 function normalizeMember(m){
   return {
     id:m.id||createId(),
-    name:String(m.name||"").trim(),
-    subs:String(m.subs||"").trim(),
-    note:String(m.note||"").trim(),
-    duty:String(m.duty||"").trim(),
+    name:m.name||"",
+    subs:m.subs||"",
+    note:m.note||"",
+    duty:m.duty||"",
     king:m.king||"보유 없음",
     position:m.position||"상단명단",
     is2nd:toBoolean(m.is2nd),
@@ -216,11 +217,14 @@ function render(){
   const king=document.getElementById("kingFilter").value;
   const complete=document.getElementById("completeFilter").value;
 
-  const executives=members.filter(m=>m.position==="임원진");
-  const normal=members.filter(m=>m.position!=="임원진");
+  // 본캐 닉네임이 실제로 입력된 회원만 인원수에 포함
+  // Google Sheet의 빈 행/빈 데이터가 있어도 인원수가 늘어나지 않도록 처리
+  const validMembers = members.filter(m => String(m.name || "").trim() !== "");
 
-  // 통계 수치 정확하게 반영
-  document.getElementById("totalCount").textContent=members.length;
+  const executives=validMembers.filter(m=>m.position==="임원진");
+  const normal=validMembers.filter(m=>m.position!=="임원진");
+
+  document.getElementById("totalCount").textContent=validMembers.length;
   document.getElementById("execCount").textContent=executives.length;
   document.getElementById("normalCount").textContent=normal.length;
   document.getElementById("execTitle").textContent=executives.length;
@@ -310,6 +314,17 @@ async function saveMember(){
   const name=document.getElementById("name").value.trim();
   if(!name){alert("본캐 닉네임을 입력해주세요.");return}
 
+  // 동일한 본캐 닉네임 중복 등록 방지 (수정 중인 본인은 제외)
+  const duplicate = members.find(m =>
+    String(m.name || "").trim() === name &&
+    String(m.id) !== String(editId || "")
+  );
+
+  if (duplicate) {
+    alert("이미 등록된 본캐 닉네임입니다.\n\n[" + name + "]");
+    return;
+  }
+
   const member={
     id:editId||createId(),
     name,
@@ -389,7 +404,7 @@ function restoreBackup(e){
       const data=JSON.parse(reader.result);
       if(!Array.isArray(data))throw new Error("백업 파일 형식이 올바르지 않습니다.");
       if(!confirm("현재 명단을 백업 파일 내용으로 교체하고 Google Sheet에 저장할까요?"))return;
-      members=data.filter(m => m && String(m.name || "").trim() !== "").map(normalizeMember);
+      members=data.map(normalizeMember);
       await saveAll();
     }catch(err){alert("백업 복원 실패\n"+err.message)}
     e.target.value="";
