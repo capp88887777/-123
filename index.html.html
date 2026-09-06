@@ -76,9 +76,9 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 <div class="container">
 
   <div class="stats">
-    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">0</div></div>
-    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">0</div></div>
-    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">0</div></div>
+    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">-</div></div>
+    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">-</div></div>
+    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">-</div></div>
   </div>
 
   <div class="search-box">
@@ -95,8 +95,8 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
     </div>
   </div>
 
-  <div class="section-title">👑 임원진 (<span id="execTitle">0</span>명)</div>
-  <div id="executives" class="executives"></div>
+  <div class="section-title">👑 임원진 (<span id="execTitle">-</span>명)</div>
+  <div id="executives" class="executives"><div style="color:#888;font-size:13px;padding:10px;">불러오는 중...</div></div>
 
   <div class="section-title">📋 상단 명단</div>
   <div class="table-wrap">
@@ -107,7 +107,9 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
           <th>2차 완료</th><th>각성 완료</th><th>비고</th><th>관리</th>
         </tr>
       </thead>
-      <tbody id="memberList"></tbody>
+      <tbody id="memberList">
+        <tr><td colspan="8" style="padding:20px;color:#888;">데이터를 불러오는 중입니다... 잠시만 기다려주세요.</td></tr>
+      </tbody>
     </table>
   </div>
 
@@ -154,30 +156,49 @@ let members=[];
 let editId=null;
 let adminMode=false;
 
-window.addEventListener("load",loadMembers);
+// 로컬 스토리지에서 캐시된 데이터 즉시 불러오기 (새로고침 시 딜레이 체감 완화)
+try {
+  const cached = localStorage.getItem("대한민국상단_캐시");
+  if(cached){
+    members = JSON.parse(cached);
+    if(Array.isArray(members) && members.length > 0){
+      render();
+    }
+  }
+} catch(e){}
+
+window.addEventListener("load", loadMembers);
 
 async function loadMembers(){
- setStatus("명단을 불러오는 중...");
+ setStatus("구글 시트 동기화 중...");
  try{
-   const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
-   const data=await res.json();
+   const res = await fetch(API_URL + "?t=" + Date.now(), {cache: "no-store"});
+   const data = await res.json();
    
    const rawList = Array.isArray(data) 
      ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "" && String(m.name || "").trim() !== "undefined") 
      : [];
 
-   const uniqueMap = new Map();
-   rawList.forEach(m => {
-     const normalized = normalizeMember(m);
-     uniqueMap.set(normalized.id, normalized);
-   });
-   members = Array.from(uniqueMap.values());
+   if(rawList.length > 0){
+     const uniqueMap = new Map();
+     rawList.forEach(m => {
+       const normalized = normalizeMember(m);
+       uniqueMap.set(normalized.id, normalized);
+     });
+     members = Array.from(uniqueMap.values());
+     
+     // 최신 데이터 캐시 저장
+     try {
+       localStorage.setItem("대한민국상단_캐시", JSON.stringify(members));
+     } catch(e){}
+   }
 
    render();
-   setStatus("Google Sheet 연결 완료");
+   setStatus("동기화 완료");
  }catch(e){
    console.error(e);
-   setStatus("Google Sheet 연결 실패");
+   setStatus("오프라인 모드 (캐시 데이터 사용 중)");
+   render();
  }
 }
 
@@ -219,12 +240,12 @@ function render(){
  document.getElementById("normalCount").textContent=normal.length;
  document.getElementById("execTitle").textContent=executives.length;
 
- document.getElementById("executives").innerHTML=executives.map(m=>`
+ document.getElementById("executives").innerHTML=executives.length > 0 ? executives.map(m=>`
    <div class="exec-card">
      <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
      <div class="exec-duty">${escapeHTML(m.duty||"임원진")}</div>
    </div>
- `).join("");
+ `).join("") : '<div style="color:#888;font-size:13px;padding:10px;">임원진이 없습니다.</div>';
 
  const filtered=members.filter(m=>{
    const text=(m.name+" "+m.subs+" "+m.king).toLowerCase();
@@ -235,7 +256,7 @@ function render(){
 
  filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
- document.getElementById("memberList").innerHTML=filtered.map(m=>`
+ document.getElementById("memberList").innerHTML=filtered.length > 0 ? filtered.map(m=>`
    <tr>
      <td>${escapeHTML(m.duty||"-")}</td>
      <td class="main-name">${escapeHTML(m.name)}</td>
@@ -248,7 +269,7 @@ function render(){
        `<button class="manage-btn edit-btn" onclick="editMember('${escapeJS(m.id)}')">수정</button>
         <button class="manage-btn delete-btn" onclick="deleteMember('${escapeJS(m.id)}')">삭제</button>`:"-"}</td>
    </tr>
- `).join("");
+ `).join("") : '<tr><td colspan="8" style="padding:20px;color:#888;">검색 결과가 없습니다.</td></tr>';
 }
 
 function adminLogin(e){
@@ -325,6 +346,7 @@ async function saveMember(){
  editId=null;
  clearForm();
  render();
+ updateCache();
  setStatus("저장 완료!");
  backgroundSave();
 }
@@ -337,8 +359,15 @@ async function deleteMember(id){
  
  members=members.filter(x=>String(x.id)!==String(id));
  render();
+ updateCache();
  setStatus("삭제 완료!");
  backgroundSave();
+}
+
+function updateCache(){
+ try {
+   localStorage.setItem("대한민국상단_캐시", JSON.stringify(members));
+ } catch(e){}
 }
 
 async function backgroundSave(){
@@ -394,6 +423,7 @@ function restoreBackup(e){
      members = Array.from(uniqueMap.values());
 
      render();
+     updateCache();
      setStatus("복원 완료!");
      backgroundSave();
    }catch(err){alert("백업 복원 실패\n"+err.message)}
