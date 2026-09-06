@@ -8,27 +8,27 @@
         * { box-sizing: border-box; }
         body { font-family: 'Malgun Gothic', sans-serif; padding: 0; margin: 0; background-color: #ffffff; color: #333; }
 
-        /* --- 헤더에 이미지를 직접 삽입하는 깔끔한 스타일 --- */
+        /* --- 새로운 이미지 헤더 스타일 --- */
         .header {
+            position: relative;
             width: 100%;
-            background-color: #333; /* 이미지 로드 전 배경색 */
+            background-color: #222; /* 이미지 로드 전 배경색 */
             text-align: center;
             padding: 0;
             margin: 0;
             line-height: 0; /* 이미지 하단 미세 공백 제거 */
-            position: relative;
         }
         
         .header img {
-            width: 100%;      /* 너비는 화면 꽉 채움 */
-            height: auto;     /* 비율 자동 유지 */
-            display: block;   
-            max-height: 350px;/* 이미지가 너무 커지지 않도록 제한 (필요시 조절) */
-            object-fit: cover;/* 이미지가 찌그러지지 않고 비율 유지하며 커버 */
+            width: 100%;      /* 이미지가 화면 너비에 꽉 차게 */
+            height: auto;     /* 이미지 비율 자동 유지 */
+            display: block;
+            max-height: 350px;/* 이미지가 너무 커지는 것 방지 (필요시 조절) */
+            object-fit: cover;/* 이미지가 찌그러지지 않고 비율 유지하며 영역 커버 */
         }
         
-        /* 버튼을 이미지 위에 띄우기 위한 스타일 */
-        .header-content {
+        /* 버튼과 텍스트를 이미지 위에 띄우는 컨테이너 */
+        .header-overlay {
             position: absolute;
             top: 0;
             left: 0;
@@ -41,16 +41,17 @@
             pointer-events: none;    /* 버튼 클릭을 위해 이벤트 통과 */
         }
         
-        /* 버튼만 클릭 가능하도록 설정 */
-        .admin-btn-container {
-            margin-top: 15px;
-            pointer-events: auto; 
-        }
-        
-        /* 기존 텍스트 스타일 (이미지 위 가독성을 위해 그림자 추가) */
+        /* 기존 텍스트 스타일 (이미지 위 가독성 위해 그림자 추가) */
         .title-main { font-size: 34px; font-weight: bold; margin-bottom: 5px; letter-spacing: 1px; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
         .server-tag { background: #b8860b; color: #fff; padding: 3px 15px; border-radius: 15px; font-size: 14px; display: inline-block; margin-bottom: 5px; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
         .title-sub { font-size: 22px; font-weight: bold; color: #eee; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        
+        /* 버튼만 클릭 가능하도록 설정 */
+        .admin-btn-container {
+            margin-top: 15px;
+            pointer-events: auto;
+            text-align: center;
+        }
 
         /* 기존 버튼 스타일 유지 */
         .admin-btn { background: #b8860b; color: #fff; border: none; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
@@ -114,8 +115,8 @@
 <!-- 이미지를 직접 삽입하는 새로운 헤더 구조 -->
 <div class="header">
     <img src="https://replicate.delivery/xpbh/p569f8Ff5K7yI6L62N6A99a8C6n7Y7L8Z8E8A8E8A8E8A8E8VQAo/output.png" alt="大韓民國 상단 배너">
-    <!-- 텍스트와 버튼을 이미지 위에 올리기 위한 컨테이너 -->
-    <div class="header-content">
+    <!-- 텍스트와 버튼을 이미지 위에 오버레이하는 컨테이너 -->
+    <div class="header-overlay">
         <div class="title-main">大韓民國 상단</div>
         <div class="server-tag">현무서버</div>
         <div class="title-sub">大韓民國 상단 사천왕 보유 현황</div>
@@ -126,8 +127,8 @@
 </div>
 
 <div class="content">
-    <!-- 이하 기존의 비밀번호 박스, 패널, 멤버 리스트 등 모든 기능 유지 -->
-    
+    <!-- 기존의 비밀번호 박스, 패널, 멤버 리스트 등 모든 기능 유지 -->
+
     <div id="pwBox" class="pw-box">
         <p>비밀번호를 입력하세요</p>
         <input type="password" id="adminPw" placeholder="암호 입력">
@@ -177,7 +178,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="filter-row">
         <select id="searchKing" class="search-select">
             <option value="">천왕을 선택해주세요</option>
@@ -185,4 +186,8 @@
             <option value="다문천왕">다문천왕</option>
             <option value="광목천왕">광목천왕</option>
             <option value="증장천왕">증장천왕</option>
-            <option value="보유 없음">보유 없음</option
+            <option value="보유 없음">보유 없음</option>
+        </select>
+    </div>
+
+    <ul id="regularList" class="member
