@@ -182,7 +182,8 @@ footer{text-align:center;color:#888;font-size:11px;padding:15px}
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbz6b0x3BaX4V8Cvjo0dYyEeUBwyBXRG9_ck5tfSefQJ5z9UwUuDiohTO1ewzZEVwdLbxA/exec";
+// 최신 구글 앱스 스크립트 배포 URL 적용 완료
+const API_URL="https://script.google.com/macros/s/AKfycbx_WitakdGCAGeNR8gRlTLzutms-q5mMonyQNbdrC9tE6eTZLU2BcRVsa14n4j_69Uu6Q/exec";
 const ADMIN_PASSWORD="1357";
 let members=[];
 let editId=null;
@@ -244,17 +245,24 @@ async function loadMembers(){
     
     const rawList = Array.isArray(data) ? data : [];
     if(rawList.length > 0){
-      members = rawList.map((m, idx) => ({
-        id: "member_" + (idx + 1),
-        position: String(m.position || "상단명단").trim(),
-        name: String(m.name || "").trim(),
-        subs: String(m.subs || "").trim(),
-        king: String(m.king || "보유 없음").trim(),
-        duty: String(m.duty || "").trim(),
-        is2nd: Boolean(m.is2nd),
-        isAwaken: Boolean(m.isAwaken),
-        note: String(m.note || "").trim()
-      })).filter(m => m.name !== "");
+      members = rawList.map((m, idx) => {
+        // 백엔드 파싱 데이터 매핑 정밀 교정
+        const nameVal = String(m.name || "").trim();
+        const is2ndVal = (m.is2nd === true || String(m.is2nd).toUpperCase() === "TRUE");
+        const isAwakenVal = (m.isAwaken === true || String(m.isAwaken).toUpperCase() === "TRUE");
+        
+        return {
+          id: "member_" + (idx + 1),
+          position: String(m.position || "상단명단").trim(),
+          name: nameVal,
+          subs: String(m.subs || "").trim(),
+          king: String(m.king || "보유 없음").trim(),
+          duty: String(m.duty || "").trim(),
+          is2nd: is2ndVal,
+          isAwaken: isAwakenVal,
+          note: String(m.note || "").trim()
+        };
+      }).filter(m => m.name !== "" && m.name.indexOf("T00:00:00") === -1);
 
       try { localStorage.setItem("대한민국상단_캐시", JSON.stringify(members)); } catch(e){}
     }
@@ -296,14 +304,15 @@ function render(){
 
   filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
+  // 테이블 렌더링 매핑 순서 완벽 고정
   let listHtml = filtered.length > 0 ? filtered.map(m=>`
     <tr>
       <td>${escapeHTML(m.duty||"-")}</td>
       <td class="main-name">${escapeHTML(m.name)}</td>
       <td>${escapeHTML(m.subs||"-")}</td>
       <td><span class="king-badge ${kingClass(m.king)}">${escapeHTML(m.king||"보유 없음")}</span></td>
-      <td>${m.is2nd?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
-      <td>${m.isAwaken?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
+      <td>${m.is2nd ? '<span class="complete">✓</span>' : '<span class="incomplete">-</span>'}</td>
+      <td>${m.isAwaken ? '<span class="complete">✓</span>' : '<span class="incomplete">-</span>'}</td>
       <td>${escapeHTML(m.note||"-")}</td>
       <td>${adminMode?
         `<button class="manage-btn edit-btn" onclick="editMember('${escapeJS(m.id)}')">수정</button>
