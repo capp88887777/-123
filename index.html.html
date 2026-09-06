@@ -11,10 +11,10 @@ button,input,select{font-family:inherit}
 .header{position:relative;width:100%;overflow:hidden;background:#eef4ff}
 .header img{display:block;width:100%;height:auto;max-height:390px;object-fit:cover;object-position:center top}
 .admin-login{
- position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+ position:absolute;left:50%;top:78%;bottom:auto;transform:translateX(-50%);z-index:20;
  border:0;border-radius:30px;padding:12px 25px;
  background:#d99b16;color:#fff;font-size:15px;font-weight:900;
- box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;z-index:2
+ box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;z-index:20;white-space:nowrap;
 }
 .admin-login:hover{transform:translateX(-50%) translateY(-2px)}
 .container{width:min(1400px,94%);margin:22px auto 45px}
@@ -59,7 +59,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 @media(max-width:800px){
  .stats{grid-template-columns:1fr}.search-row{grid-template-columns:1fr}.executives{grid-template-columns:repeat(2,1fr)}
  .form-grid{grid-template-columns:1fr}.header img{max-height:none}
- .admin-login{bottom:12px;padding:10px 18px;font-size:13px}
+ .admin-login{top:76%;padding:10px 18px;font-size:13px}
 }
 @media(max-width:450px){.executives{grid-template-columns:1fr 1fr}}
 </style>
