@@ -170,13 +170,10 @@ async function loadMembers(){
     const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
     const data=await res.json();
     
-    // --- [수정된 부분] ---
-    // 구글 시트에서 가져온 데이터 중, 본캐 닉네임(name)이 비어있는 행은
-    // 더미 데이터로 간주하고 필터링하여 제외합니다.
+    // 유효한 본캐 닉네임이 존재하는 행만 엄격하게 필터링
     members = Array.isArray(data) 
       ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "").map(normalizeMember) 
       : [];
-    // -------------------
 
     render();
     setStatus("Google Sheet 연결 완료");
@@ -192,4 +189,230 @@ function normalizeMember(m){
     id:m.id||createId(),
     name:String(m.name||"").trim(),
     subs:String(m.subs||"").trim(),
-    note:String(m.note||"
+    note:String(m.note||"").trim(),
+    duty:String(m.duty||"").trim(),
+    king:m.king||"보유 없음",
+    position:m.position||"상단명단",
+    is2nd:toBoolean(m.is2nd),
+    isAwaken:toBoolean(m.isAwaken)
+  };
+}
+
+function toBoolean(v){
+  return v===true||v==="true"||v==="TRUE"||v===1||v==="1";
+}
+
+function kingClass(k){
+  if(k==="지국천왕")return"king-jiguk";
+  if(k==="다문천왕")return"king-damun";
+  if(k==="광목천왕")return"king-gwangmok";
+  if(k==="증장천왕")return"king-jeungjang";
+  return"king-none";
+}
+
+function render(){
+  const search=document.getElementById("search").value.trim().toLowerCase();
+  const position=document.getElementById("positionFilter").value;
+  const king=document.getElementById("kingFilter").value;
+  const complete=document.getElementById("completeFilter").value;
+
+  const executives=members.filter(m=>m.position==="임원진");
+  const normal=members.filter(m=>m.position!=="임원진");
+
+  // 통계 수치 정확하게 반영
+  document.getElementById("totalCount").textContent=members.length;
+  document.getElementById("execCount").textContent=executives.length;
+  document.getElementById("normalCount").textContent=normal.length;
+  document.getElementById("execTitle").textContent=executives.length;
+
+  document.getElementById("executives").innerHTML=executives.map(m=>`
+    <div class="exec-card">
+      <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
+      <div class="exec-duty">${escapeHTML(m.duty||"임원진")}</div>
+    </div>
+  `).join("");
+
+  const filtered=members.filter(m=>{
+    const text=(m.name+" "+m.subs+" "+m.duty).toLowerCase();
+    if(search&&!text.includes(search))return false;
+    if(position&&m.position!==position)return false;
+    if(king&&m.king!==king)return false;
+    if(complete==="2nd"&&!m.is2nd)return false;
+    if(complete==="awaken"&&!m.isAwaken)return false;
+    return true;
+  });
+
+  document.getElementById("memberList").innerHTML=filtered.map(m=>`
+    <tr>
+      <td>${escapeHTML(m.duty||"-")}</td>
+      <td class="main-name">${escapeHTML(m.name)}</td>
+      <td>${escapeHTML(m.subs||"-")}</td>
+      <td><span class="king-badge ${kingClass(m.king)}">${escapeHTML(m.king||"보유 없음")}</span></td>
+      <td>${m.is2nd?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
+      <td>${m.isAwaken?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
+      <td>${escapeHTML(m.note||"-")}</td>
+      <td>${adminMode?
+        `<button class="manage-btn edit-btn" onclick="editMember('${escapeJS(m.id)}')">수정</button>
+         <button class="manage-btn delete-btn" onclick="deleteMember('${escapeJS(m.id)}')">삭제</button>`:"-"}</td>
+    </tr>
+  `).join("");
+}
+
+function adminLogin(e){
+  if(e)e.stopPropagation();
+  if(adminMode){
+    adminMode=false;
+    document.getElementById("adminPanel").classList.remove("active");
+    clearForm();
+    render();
+    return;
+  }
+  const pw=prompt("관리자 비밀번호를 입력하세요.");
+  if(pw===ADMIN_PASSWORD){
+    adminMode=true;
+    document.getElementById("adminPanel").classList.add("active");
+    document.getElementById("adminPanel").scrollIntoView({behavior:"smooth",block:"start"});
+    render();
+    alert("관리자 인증 완료!");
+  }else if(pw!==null){
+    alert("비밀번호가 틀렸습니다.");
+  }
+}
+
+function newMember(){
+  if(!adminMode){alert("먼저 관리자 인증을 해주세요.");return}
+  editId=null;
+  clearForm();
+  document.getElementById("adminPanel").classList.add("active");
+  document.getElementById("modeText").textContent="(등록 모드)";
+}
+
+function editMember(id){
+  if(!adminMode){alert("관리자 인증이 필요합니다.");return}
+  const m=members.find(x=>String(x.id)===String(id));
+  if(!m)return alert("회원을 찾을 수 없습니다.");
+  editId=m.id;
+  document.getElementById("position").value=m.position;
+  document.getElementById("name").value=m.name;
+  document.getElementById("subs").value=m.subs;
+  document.getElementById("king").value=m.king;
+  document.getElementById("duty").value=m.duty;
+  document.getElementById("note").value=m.note;
+  document.getElementById("is2nd").checked=m.is2nd;
+  document.getElementById("isAwaken").checked=m.isAwaken;
+  document.getElementById("modeText").textContent="(수정 모드)";
+  document.getElementById("adminPanel").classList.add("active");
+  document.getElementById("adminPanel").scrollIntoView({behavior:"smooth"});
+}
+
+async function saveMember(){
+  if(!adminMode){alert("먼저 관리자 인증을 해주세요.");return}
+  const name=document.getElementById("name").value.trim();
+  if(!name){alert("본캐 닉네임을 입력해주세요.");return}
+
+  const member={
+    id:editId||createId(),
+    name,
+    subs:document.getElementById("subs").value.trim(),
+    note:document.getElementById("note").value.trim(),
+    duty:document.getElementById("duty").value.trim(),
+    king:document.getElementById("king").value,
+    position:document.getElementById("position").value,
+    is2nd:document.getElementById("is2nd").checked,
+    isAwaken:document.getElementById("isAwaken").checked
+  };
+
+  const idx=members.findIndex(m=>String(m.id)===String(member.id));
+  if(idx>=0)members[idx]=member;else members.push(member);
+  await saveAll();
+}
+
+async function deleteMember(id){
+  if(!adminMode){alert("관리자 인증이 필요합니다.");return}
+  const m=members.find(x=>String(x.id)===String(id));
+  if(!m)return;
+  if(!confirm("["+m.name+"] 회원을 정말 삭제하시겠습니까?"))return;
+  members=members.filter(x=>String(x.id)!==String(id));
+  await saveAll();
+}
+
+async function saveAll(){
+  setStatus("Google Sheet에 저장 중...");
+  try{
+    const res=await fetch(API_URL,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(members)
+    });
+    const result=await res.json();
+    if(result.result!=="success")throw new Error(result.message||"저장 실패");
+    editId=null;
+    clearForm();
+    render();
+    setStatus("Google Sheet 저장 완료");
+    alert("저장 완료!\nGoogle Sheet에도 반영되었습니다.");
+  }catch(e){
+    console.error(e);
+    setStatus("저장 실패");
+    alert("저장에 실패했습니다.\n"+e.message);
+  }
+}
+
+function clearForm(){
+  editId=null;
+  document.getElementById("position").value="상단명단";
+  document.getElementById("name").value="";
+  document.getElementById("subs").value="";
+  document.getElementById("king").value="보유 없음";
+  document.getElementById("duty").value="";
+  document.getElementById("note").value="";
+  document.getElementById("is2nd").checked=false;
+  document.getElementById("isAwaken").checked=false;
+  document.getElementById("modeText").textContent="(등록 모드)";
+}
+
+function downloadBackup(){
+  const blob=new Blob([JSON.stringify(members,null,2)],{type:"application/json;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="대한민국상단_명단백업_"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+
+function restoreBackup(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(!Array.isArray(data))throw new Error("백업 파일 형식이 올바르지 않습니다.");
+      if(!confirm("현재 명단을 백업 파일 내용으로 교체하고 Google Sheet에 저장할까요?"))return;
+      members=data.filter(m => m && String(m.name || "").trim() !== "").map(normalizeMember);
+      await saveAll();
+    }catch(err){alert("백업 복원 실패\n"+err.message)}
+    e.target.value="";
+  };
+  reader.readAsText(file,"utf-8");
+}
+
+function createId(){
+  return "member_"+Date.now()+"_"+Math.floor(Math.random()*100000);
+}
+
+function escapeHTML(v){
+  return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+
+function escapeJS(v){
+  return String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,'\\"');
+}
+
+function setStatus(text){
+  const el=document.getElementById("saveStatus");
+  if(el)el.textContent=text;
+}
+</script>
+</body>
+</html>
