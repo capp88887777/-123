@@ -14,7 +14,7 @@ button,input,select{font-family:inherit}
  position:absolute;left:50%;top:78%;bottom:auto;transform:translateX(-50%);z-index:20;
  border:0;border-radius:30px;padding:12px 25px;
  background:#d99b16;color:#fff;font-size:15px;font-weight:900;
- box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;z-index:20;white-space:nowrap;
+ box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;white-space:nowrap;
 }
 .admin-login:hover{transform:translateX(-50%) translateY(-2px)}
 .container{width:min(1400px,94%);margin:22px auto 45px}
@@ -169,7 +169,12 @@ async function loadMembers(){
   try{
     const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
     const data=await res.json();
-    members=Array.isArray(data)?data.map(normalizeMember):[];
+    
+    // 유효한 본캐 닉네임(name)이 존재하는 데이터만 필터링하여 더미 데이터/빈 행 유입 원천 차단
+    members = Array.isArray(data) 
+      ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "").map(normalizeMember) 
+      : [];
+
     render();
     setStatus("Google Sheet 연결 완료");
   }catch(e){
@@ -182,10 +187,10 @@ async function loadMembers(){
 function normalizeMember(m){
   return {
     id:m.id||createId(),
-    name:m.name||"",
-    subs:m.subs||"",
-    note:m.note||"",
-    duty:m.duty||"",
+    name:String(m.name||"").trim(),
+    subs:String(m.subs||"").trim(),
+    note:String(m.note||"").trim(),
+    duty:String(m.duty||"").trim(),
     king:m.king||"보유 없음",
     position:m.position||"상단명단",
     is2nd:toBoolean(m.is2nd),
@@ -383,7 +388,7 @@ function restoreBackup(e){
       const data=JSON.parse(reader.result);
       if(!Array.isArray(data))throw new Error("백업 파일 형식이 올바르지 않습니다.");
       if(!confirm("현재 명단을 백업 파일 내용으로 교체하고 Google Sheet에 저장할까요?"))return;
-      members=data.map(normalizeMember);
+      members=data.filter(m => m && String(m.name || "").trim() !== "").map(normalizeMember);
       await saveAll();
     }catch(err){alert("백업 복원 실패\n"+err.message)}
     e.target.value="";
