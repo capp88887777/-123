@@ -181,35 +181,38 @@ try {
 window.addEventListener("load", loadMembers);
 
 async function loadMembers(){
- setStatus("구글 시트 동기화 중...");
- try{
-   const res = await fetch(API_URL + "?t=" + Date.now(), {cache: "no-store"});
-   const data = await res.json();
-   
-   const rawList = Array.isArray(data) 
-     ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "" && String(m.name || "").trim() !== "undefined") 
-     : [];
+  setStatus("구글 시트 동기화 중...");
+  try{
+    const res = await fetch(API_URL + "?t=" + Date.now(), {cache: "no-store"});
+    const data = await res.json();
+    
+    const rawList = Array.isArray(data) 
+      ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "" && String(m.name || "").trim() !== "undefined") 
+      : [];
 
-   if(rawList.length > 0){
-     const uniqueMap = new Map();
-     rawList.forEach(m => {
-       const normalized = normalizeMember(m);
-       uniqueMap.set(normalized.id, normalized);
-     });
-     members = Array.from(uniqueMap.values());
-     
-     try {
-       localStorage.setItem("대한민국상단_캐시", JSON.stringify(members));
-     } catch(e){}
-   }
+    if(rawList.length > 0){
+      const uniqueMap = new Map();
+      rawList.forEach(m => {
+        const normalized = normalizeMember(m);
+        // 여기서 닉네임(name) 기준으로 중복을 걸러내어 107명으로 맞춤
+        if(normalized.name) {
+          uniqueMap.set(normalized.name, normalized);
+        }
+      });
+      members = Array.from(uniqueMap.values());
+      
+      try {
+        localStorage.setItem("대한민국상단_캐시", JSON.stringify(members));
+      } catch(e){}
+    }
 
-   render();
-   setStatus("동기화 완료");
- }catch(e){
-   console.error(e);
-   setStatus("오프라인 모드 (캐시 데이터 유지 중)");
-   render();
- }
+    render();
+    setStatus("동기화 완료");
+  }catch(e){
+    console.error(e);
+    setStatus("오프라인 모드 (캐시 데이터 유지 중)");
+    render();
+  }
 }
 
 function normalizeMember(m){
@@ -428,7 +431,9 @@ function restoreBackup(e){
      const uniqueMap = new Map();
      rawList.forEach(m => {
        const normalized = normalizeMember(m);
-       uniqueMap.set(normalized.id, normalized);
+       if(normalized.name) {
+         uniqueMap.set(normalized.name, normalized);
+       }
      });
      members = Array.from(uniqueMap.values());
 
