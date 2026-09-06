@@ -65,7 +65,6 @@ tbody tr:hover td{background:#fcfaff}.main-name{font-weight:900;color:#4d3a69}
 footer{text-align:center;color:#888;font-size:11px;padding:15px}
 .status{text-align:center;color:#777;font-size:11px;margin:8px 0}
 
-/* 폰 최적화 미디어쿼리 */
 @media(max-width:1100px){.executives{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:768px){
  .container{width:98%;margin:10px auto 30px}
@@ -97,7 +96,6 @@ footer{text-align:center;color:#888;font-size:11px;padding:15px}
 
 <div class="container">
 
-  <!-- 유튜브 BGM 플레이어 컨트롤 바 -->
   <div class="music-bar">
     <div class="music-info">
       <span>🎵 BGM: 조선힙합 - 너의 차선</span>
@@ -107,7 +105,6 @@ footer{text-align:center;color:#888;font-size:11px;padding:15px}
       <button class="m-btn" id="muteBtn" onclick="toggleMute()">🔇 음소거 해제</button>
       <button class="m-btn" onclick="restartSong()">🔄 처음부터</button>
     </div>
-    <!-- 백그라운드에 숨겨진 유튜브 플레이어 프레임 -->
     <div id="youtube-player" style="display:none;"></div>
   </div>
 
@@ -183,7 +180,6 @@ footer{text-align:center;color:#888;font-size:11px;padding:15px}
 
 <footer>© 2026 大韓民國 상단 | 현무서버 All rights reserved.</footer>
 
-<!-- 유튜브 IFrame API 스크립트 로드 -->
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
@@ -195,73 +191,51 @@ let adminMode=false;
 let player;
 let isMuted = true;
 
-// 유튜브 API가 준비되었을 때 호출되는 안전한 함수
 function onYouTubeIframeAPIReady() {
   try {
     player = new YT.Player('youtube-player', {
       height: '0',
       width: '0',
       videoId: 'PxmKaXqeK2s',
-      playerVars: {
-        'autoplay': 1,
-        'loop': 1,
-        'playlist': 'PxmKaXqeK2s',
-        'mute': 1,
-        'controls': 0
-      },
+      playerVars: { 'autoplay': 1, 'loop': 1, 'playlist': 'PxmKaXqeK2s', 'mute': 1, 'controls': 0 },
       events: {
         'onReady': (e) => e.target.playVideo(),
-        'onStateChange': (e) => {
-          if (e.data === YT.PlayerState.ENDED) {
-            player.playVideo();
-          }
-        }
+        'onStateChange': (e) => { if (e.data === YT.PlayerState.ENDED) player.playVideo(); }
       }
     });
-  } catch(err) {
-    console.error("유 유튜브 플레이어 초기화 오류:", err);
-  }
+  } catch(err){}
 }
 
-// 재생 / 일시정지 토글 버튼
 function togglePlay() {
   if (!player || typeof player.getPlayerState !== 'function') return;
   const state = player.getPlayerState();
   const btn = document.getElementById("playBtn");
-  if (state === YT.PlayerState.PLAYING) {
-    player.pauseVideo();
-    if(btn) btn.textContent = "▶ 재생하기";
-  } else {
-    player.playVideo();
-    if(btn) btn.textContent = "⏸ 일시정지";
-  }
+  if (state === YT.PlayerState.PLAYING) { player.pauseVideo(); if(btn) btn.textContent = "▶ 재생하기"; }
+  else { player.playVideo(); if(btn) btn.textContent = "⏸ 일시정지"; }
 }
 
-// 음소거 / 소리 켜기 토글 버튼
 function toggleMute() {
   if (!player || typeof player.isMuted !== 'function') return;
   const btn = document.getElementById("muteBtn");
-  if (isMuted) {
-    player.unMute();
-    player.setVolume(80);
-    isMuted = false;
-    if(btn) btn.textContent = "🔊 소리 끄기";
-  } else {
-    player.mute();
-    isMuted = true;
-    if(btn) btn.textContent = "🔇 음소거 해제";
-  }
+  if (isMuted) { player.unMute(); player.setVolume(80); isMuted = false; if(btn) btn.textContent = "🔊 소리 끄기"; }
+  else { player.mute(); isMuted = true; if(btn) btn.textContent = "🔇 음소거 해제"; }
 }
 
-// 처음부터 다시 재생 버튼
 function restartSong() {
   if (!player || typeof player.seekTo !== 'function') return;
-  player.seekTo(0);
-  player.playVideo();
+  player.seekTo(0); player.playVideo();
 }
 
-// 웹페이지 로드 시 구글 시트 데이터를 최우선으로 불러오기
-window.addEventListener("load", loadMembers);
+window.addEventListener("load", () => {
+  try {
+    const cached = localStorage.getItem("대한민국상단_캐시");
+    if(cached){
+      members = JSON.parse(cached);
+      render(); // 캐시 데이터가 있으면 즉시 렌더링하여 지연 시간 제거
+    }
+  } catch(e){}
+  loadMembers();
+});
 
 async function loadMembers(){
   setStatus("구글 시트 동기화 중...");
@@ -275,46 +249,44 @@ async function loadMembers(){
 
     if(rawList.length > 0){
       const uniqueMap = new Map();
-      rawList.forEach(m => {
-        const normalized = normalizeMember(m);
+      rawList.forEach((m, idx) => {
+        const normalized = normalizeMember(m, idx);
         if(normalized.name) {
+          if(uniqueMap.has(normalized.name)){
+            normalized.id = "member_" + Date.now() + "_" + Math.floor(Math.random()*100000);
+          }
           uniqueMap.set(normalized.name, normalized);
         }
       });
       members = Array.from(uniqueMap.values());
       
-      try {
-        localStorage.setItem("대한민국상단_캐시", JSON.stringify(members));
-      } catch(e){}
+      try { localStorage.setItem("대한민국상단_캐시", JSON.stringify(members)); } catch(e){}
     }
 
     render();
     setStatus("동기화 완료");
   }catch(e){
-    console.error(e);
-    try {
-      const cached = localStorage.getItem("대한민국상단_캐시");
-      if(cached){
-        members = JSON.parse(cached);
-      }
-    } catch(err){}
     setStatus("오프라인 모드 (캐시 데이터 유지 중)");
     render();
   }
 }
 
-function normalizeMember(m){
- return {
-   id: String(m.id || createId()),
-   name: String(m.name || "").trim(),
-   subs: String(m.subs || "").trim(),
-   note: String(m.note || "").trim(),
-   duty: String(m.duty || "").trim(),
-   king: m.king || "보유 없음",
-   position: m.position || "상단명단",
-   is2nd: toBoolean(m.is2nd),
-   isAwaken: toBoolean(m.isAwaken)
- };
+function normalizeMember(m, index){
+  let cleanId = String(m.id || "").trim();
+  if(!cleanId || cleanId.startsWith("member_17887")) {
+    cleanId = "member_" + Date.now() + "_" + index + "_" + Math.floor(Math.random()*10000);
+  }
+  return {
+    id: cleanId,
+    name: String(m.name || "").trim(),
+    subs: String(m.subs || "").trim(),
+    note: String(m.note || "").trim(),
+    duty: String(m.duty || "").trim(),
+    king: m.king || "보유 없음",
+    position: m.position || "상단명단",
+    is2nd: toBoolean(m.is2nd),
+    isAwaken: toBoolean(m.isAwaken)
+  };
 }
 
 function toBoolean(v){
@@ -341,12 +313,14 @@ function render(){
  document.getElementById("normalCount").textContent=normal.length;
  document.getElementById("execTitle").textContent=executives.length;
 
- document.getElementById("executives").innerHTML=executives.length > 0 ? executives.map(m=>`
+ // 한 번에 문자열을 조립하여 DOM 반영 속도를 최적화
+ let execHtml = executives.length > 0 ? executives.map(m=>`
    <div class="exec-card">
      <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
      <div class="exec-duty">${escapeHTML(m.duty||"임원진")}</div>
    </div>
  `).join("") : '<div style="color:#888;font-size:13px;padding:10px;grid-column:1/-1;text-align:center;">임원진이 없습니다.</div>';
+ document.getElementById("executives").innerHTML = execHtml;
 
  const filtered=members.filter(m=>{
    const text=(m.name+" "+m.subs+" "+m.king).toLowerCase();
@@ -357,7 +331,7 @@ function render(){
 
  filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
- document.getElementById("memberList").innerHTML=filtered.length > 0 ? filtered.map(m=>`
+ let listHtml = filtered.length > 0 ? filtered.map(m=>`
    <tr>
      <td>${escapeHTML(m.duty||"-")}</td>
      <td class="main-name">${escapeHTML(m.name)}</td>
@@ -371,6 +345,7 @@ function render(){
         <button class="manage-btn delete-btn" onclick="deleteMember('${escapeJS(m.id)}')">삭제</button>`:"-"}</td>
    </tr>
  `).join("") : '<tr><td colspan="8" style="padding:20px;color:#888;">검색 결과가 없습니다.</td></tr>';
+ document.getElementById("memberList").innerHTML = listHtml;
 }
 
 function adminLogin(e){
@@ -426,7 +401,7 @@ async function saveMember(){
  if(!name){alert("본캐 닉네임을 입력해주세요.");return}
 
  const member={
-   id: editId || createId(),
+   id: editId || ("member_" + Date.now() + "_" + Math.floor(Math.random()*100000)),
    name,
    subs:document.getElementById("subs").value.trim(),
    note:document.getElementById("note").value.trim(),
@@ -466,9 +441,7 @@ async function deleteMember(id){
 }
 
 function updateCache(){
- try {
-   localStorage.setItem("대한민국상단_캐시", JSON.stringify(members));
- } catch(e){}
+ try { localStorage.setItem("대한민국상단_캐시", JSON.stringify(members)); } catch(e){}
 }
 
 async function backgroundSave(){
@@ -478,9 +451,7 @@ async function backgroundSave(){
      headers:{"Content-Type":"text/plain;charset=utf-8"},
      body:JSON.stringify(members)
    });
- }catch(e){
-   console.error("구글 시트 동기화 오류:", e);
- }
+ }catch(e){}
 }
 
 function clearForm(){
@@ -517,11 +488,9 @@ function restoreBackup(e){
      
      const rawList = data.filter(m => m && String(m.name || "").trim() !== "");
      const uniqueMap = new Map();
-     rawList.forEach(m => {
-       const normalized = normalizeMember(m);
-       if(normalized.name) {
-         uniqueMap.set(normalized.name, normalized);
-       }
+     rawList.forEach((m, idx) => {
+       const normalized = normalizeMember(m, idx);
+       if(normalized.name) { uniqueMap.set(normalized.name, normalized); }
      });
      members = Array.from(uniqueMap.values());
 
@@ -533,10 +502,6 @@ function restoreBackup(e){
    e.target.value="";
  };
  reader.readAsText(file,"utf-8");
-}
-
-function createId(){
- return "member_"+Date.now()+"_"+Math.floor(Math.random()*100000);
 }
 
 const escapeHTML = (v) => String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
