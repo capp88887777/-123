@@ -76,9 +76,9 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 <div class="container">
 
   <div class="stats">
-    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">-</div></div>
-    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">-</div></div>
-    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">-</div></div>
+    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">0</div></div>
+    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">0</div></div>
+    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">0</div></div>
   </div>
 
   <div class="search-box">
@@ -95,7 +95,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
     </div>
   </div>
 
-  <div class="section-title">👑 임원진 (<span id="execTitle">-</span>명)</div>
+  <div class="section-title">👑 임원진 (<span id="execTitle">0</span>명)</div>
   <div id="executives" class="executives"></div>
 
   <div class="section-title">📋 상단 명단</div>
@@ -148,7 +148,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 <footer>© 2026 大韓民國 상단 | 현무서버 All rights reserved.</footer>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbyj3TC79wglpRc2XgVUXdtHYm6cUFTeOB3AJ2dDo1FDxDRsXgD_EAcOVDqF1KVAysZLkA/exec";
+const API_URL="여기에_구글_웹앱_URL을_넣으세요";
 const ADMIN_PASSWORD="1357";
 let members=[];
 let editId=null;
@@ -406,13 +406,8 @@ function createId(){
  return "member_"+Date.now()+"_"+Math.floor(Math.random()*100000);
 }
 
-function escapeHTML(v){
- return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-}
-
-function escapeJS(v){
- return String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,'\\"');
-}
+const escapeHTML = (v) => String(v ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+const escapeJS = (v) => String(v ?? "").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,'\\"');
 
 function setStatus(text){
  const el=document.getElementById("saveStatus");
