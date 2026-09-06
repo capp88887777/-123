@@ -2,68 +2,82 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>大韓民國 상단 - 현무서버</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f7f3ff;color:#222;font-family:"Noto Sans KR","Malgun Gothic",sans-serif}
+body{margin:0;background:#f7f3ff;color:#222;font-family:"Noto Sans KR","Malgun Gothic",sans-serif;-webkit-text-size-adjust:100%}
 button,input,select{font-family:inherit}
 .header{position:relative;width:100%;overflow:hidden;background:#eef4ff}
-.header img{display:block;width:100%;height:auto;max-height:390px;object-fit:cover;object-position:center top}
+.header img{display:block;width:100%;height:auto;max-height:300px;object-fit:cover;object-position:center top}
 .admin-login{
- position:absolute;left:50%;top:78%;bottom:auto;transform:translateX(-50%);z-index:20;
- border:0;border-radius:30px;padding:12px 25px;
- background:#d99b16;color:#fff;font-size:15px;font-weight:900;
- box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;white-space:nowrap;
+ position:absolute;left:50%;top:75%;transform:translateX(-50%);z-index:20;
+ border:0;border-radius:30px;padding:10px 22px;
+ background:#d99b16;color:#fff;font-size:14px;font-weight:900;
+ box-shadow:0 4px 12px rgba(0,0,0,.25);cursor:pointer;white-space:nowrap;
 }
 .admin-login:hover{transform:translateX(-50%) translateY(-2px)}
-.container{width:min(1400px,94%);margin:22px auto 45px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
-.stat{background:#fff;border-radius:20px;padding:18px;text-align:center;box-shadow:0 5px 18px rgba(80,50,120,.08)}
-.stat-title{color:#888;font-size:14px}.stat-number{margin-top:5px;font-size:30px;font-weight:900;color:#7250a4}
-.search-box{background:#fff;border-radius:20px;padding:16px;margin-bottom:22px;box-shadow:0 5px 18px rgba(80,50,120,.08)}
-.search-row{display:grid;grid-template-columns:2fr 1fr;gap:10px}
-.search-row input,.search-row select,.form-grid input,.form-grid select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;background:#fff;outline:none}
+.container{width:min(1400px,96%);margin:15px auto 40px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:#fff;border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 14px rgba(80,50,120,.06)}
+.stat-title{color:#888;font-size:12px}.stat-number{margin-top:4px;font-size:24px;font-weight:900;color:#7250a4}
+.search-box{background:#fff;border-radius:16px;padding:12px;margin-bottom:16px;box-shadow:0 4px 14px rgba(80,50,120,.06)}
+.search-row{display:grid;grid-template-columns:1.6fr 1fr;gap:8px}
+.search-row input,.search-row select,.form-grid input,.form-grid select{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;background:#fff;outline:none;font-size:14px}
 .search-row input:focus,.search-row select:focus,.form-grid input:focus,.form-grid select:focus{border-color:#9871c7}
-.section-title{margin:25px 0 12px;padding-bottom:8px;border-bottom:1px solid #ddd;font-size:22px;font-weight:900;color:#614495}
-.executives{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
-.exec-card{background:#fff;border-radius:15px;padding:15px 10px;min-height:85px;text-align:center;box-shadow:0 5px 15px rgba(80,50,120,.08);transition:.2s}
-.exec-card:hover{transform:translateY(-3px)}
-.exec-name{font-size:17px;font-weight:900;color:#5e4287}.exec-duty{margin-top:5px;font-size:13px;color:#777}
-.table-wrap{width:100%;overflow-x:auto;background:#fff;border-radius:12px;box-shadow:0 5px 18px rgba(80,50,120,.08)}
-table{width:100%;min-width:1100px;border-collapse:collapse}
-thead th{padding:12px 8px;background:linear-gradient(#b17d18,#96640a);color:#fff;font-size:14px;white-space:nowrap}
-tbody td{padding:10px 8px;text-align:center;border-bottom:1px solid #eee;font-size:13px}
+.section-title{margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid #ddd;font-size:18px;font-weight:900;color:#614495}
+.executives{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.exec-card{background:#fff;border-radius:12px;padding:12px 8px;min-height:75px;text-align:center;box-shadow:0 4px 12px rgba(80,50,120,.06);transition:.2s}
+.exec-card:hover{transform:translateY(-2px)}
+.exec-name{font-size:15px;font-weight:900;color:#5e4287}.exec-duty{margin-top:4px;font-size:12px;color:#777}
+.table-wrap{width:100%;overflow-x:auto;background:#fff;border-radius:12px;box-shadow:0 4px 14px rgba(80,50,120,.06);-webkit-overflow-scrolling:touch}
+table{width:100%;min-width:980px;border-collapse:collapse}
+thead th{padding:12px 6px;background:linear-gradient(#b17d18,#96640a);color:#fff;font-size:13px;white-space:nowrap}
+tbody td{padding:10px 6px;text-align:center;border-bottom:1px solid #eee;font-size:13px}
 tbody tr:hover td{background:#fcfaff}.main-name{font-weight:900;color:#4d3a69}
-.king-badge{display:inline-block;min-width:82px;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:900;background:#fff}
+.king-badge{display:inline-block;min-width:76px;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:900;background:#fff}
 .king-jiguk{color:#9148c7;border:2px solid #b86be8;background:#fbf3ff}
 .king-damun{color:#2474c7;border:2px solid #67a9ed;background:#f1f8ff}
 .king-gwangmok{color:#299452;border:2px solid #70c889;background:#f1fff5}
 .king-jeungjang{color:#e78a17;border:2px solid #f0a746;background:#fff8ed}
 .king-none{color:#888;border:2px solid #ccc;background:#f7f7f7}
-.complete{color:#098331;font-size:18px;font-weight:900}.incomplete{color:#aaa;font-size:15px}
-.manage-btn{border:0;border-radius:6px;padding:6px 10px;margin:1px;color:#fff;cursor:pointer;font-size:12px;font-weight:700}
+.complete{color:#098331;font-size:16px;font-weight:900}.incomplete{color:#ccc;font-size:14px}
+.manage-btn{border:0;border-radius:6px;padding:5px 8px;margin:1px;color:#fff;cursor:pointer;font-size:11px;font-weight:700}
 .edit-btn{background:#1769c2}.delete-btn{background:#e33434}
 .manage-btn:hover{opacity:.8}
-.admin-panel{display:none;margin-top:18px;background:linear-gradient(135deg,#fffdf7,#fff8ea);border:1px solid #e5d3ad;border-radius:12px;padding:18px;box-shadow:0 5px 18px rgba(80,50,120,.08)}
+.admin-panel{display:none;margin-top:16px;background:linear-gradient(135deg,#fffdf7,#fff8ea);border:1px solid #e5d3ad;border-radius:12px;padding:14px;box-shadow:0 4px 14px rgba(80,50,120,.06)}
 .admin-panel.active{display:block}
-.admin-title{font-size:19px;font-weight:900;color:#62471f;margin-bottom:15px}
-.form-grid{display:grid;grid-template-columns:1fr 1.4fr 1.4fr 1fr 1fr 1.4fr;gap:9px}
-.form-grid input,.form-grid select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;background:#fff;outline:none}
-.form-grid input:focus,.form-grid select:focus{border-color:#9871c7}
-.check-area{display:flex;gap:25px;margin:12px 0}.check-area label{font-size:14px;font-weight:700}
-.admin-actions{display:flex;gap:8px;flex-wrap:wrap}
-.admin-btn{border:0;border-radius:8px;padding:10px 17px;cursor:pointer;font-weight:800}
-.add-btn{background:#c28b12;color:#fff}.save-btn{background:#208342;color:#fff}.cancel-btn{background:#999;color:#fff}.backup-btn{background:#3377ae;color:#fff}.restore-label{background:#6d55a5;color:#fff;border-radius:8px;padding:10px 17px;cursor:pointer;font-weight:800}
-footer{text-align:center;color:#888;font-size:12px;padding:20px}
-.status{text-align:center;color:#777;font-size:12px;margin:10px 0}
+.admin-title{font-size:17px;font-weight:900;color:#62471f;margin-bottom:12px}
+.form-grid{display:grid;grid-template-columns:1fr 1.3fr 1.3fr 1fr 1fr 1.3fr;gap:8px}
+.check-area{display:flex;gap:20px;margin:10px 0}
+.check-area label{font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px}
+.admin-actions{display:flex;gap:6px;flex-wrap:wrap}
+.admin-btn{border:0;border-radius:8px;padding:9px 14px;cursor:pointer;font-weight:800;font-size:13px}
+.add-btn{background:#c28b12;color:#fff}.save-btn{background:#208342;color:#fff}.cancel-btn{background:#999;color:#fff}.backup-btn{background:#3377ae;color:#fff}.restore-label{background:#6d55a5;color:#fff;border-radius:8px;padding:9px 14px;cursor:pointer;font-weight:800;font-size:13px;display:inline-block}
+footer{text-align:center;color:#888;font-size:11px;padding:15px}
+.status{text-align:center;color:#777;font-size:11px;margin:8px 0}
+
+/* 폰 최적화 미디어쿼리 */
 @media(max-width:1100px){.executives{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:800px){
- .stats{grid-template-columns:1fr}.search-row{grid-template-columns:1fr}.executives{grid-template-columns:repeat(2,1fr)}
- .form-grid{grid-template-columns:1fr}.header img{max-height:none}
- .admin-login{top:76%;padding:10px 18px;font-size:13px}
+@media(max-width:768px){
+ .container{width:98%;margin:10px auto 30px}
+ .stats{gap:8px;margin-bottom:10px}
+ .stat{padding:10px 6px;border-radius:12px}
+ .stat-number{font-size:20px}
+ .search-box{padding:10px;border-radius:12px;margin-bottom:12px}
+ .search-row{grid-template-columns:1fr;gap:6px}
+ .section-title{font-size:16px;margin:16px 0 8px}
+ .executives{grid-template-columns:repeat(2,1fr);gap:8px}
+ .exec-card{padding:10px 6px;min-height:65px}
+ .exec-name{font-size:14px}
+ .exec-duty{font-size:11px}
+ .form-grid{grid-template-columns:1fr}
+ .admin-panel{padding:12px}
+ .admin-login{top:72%;padding:8px 16px;font-size:12px}
 }
-@media(max-width:450px){.executives{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){
+ .executives{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 </head>
 <body>
@@ -83,7 +97,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 
   <div class="search-box">
     <div class="search-row">
-      <input id="search" type="text" placeholder="🔎 닉네임 / 부캐릭터 / 사천왕 검색..." oninput="render()">
+      <input id="search" type="text" placeholder="🔎 닉네임 / 부캐 / 사천왕 검색..." oninput="render()">
       <select id="kingFilter" onchange="render()">
         <option value="">전체 사천왕</option>
         <option value="지국천왕">지국천왕</option>
@@ -98,7 +112,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
   <div class="section-title">👑 임원진 (<span id="execTitle">-</span>명)</div>
   <div id="executives" class="executives"></div>
 
-  <div class="section-title">📋 상단 명단</div>
+  <div class="section-title">📋 상단 명단 <span style="font-size:11px;color:#888;font-weight:400;float:right;line-height:22px;">(↔ 좌우로 밀어서 확인)</span></div>
   <div class="table-wrap">
     <table>
       <thead>
@@ -112,7 +126,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
   </div>
 
   <div class="admin-panel" id="adminPanel">
-    <div class="admin-title">🛠 상단원 정보 관리 <span id="modeText">(등록 모드)</span></div>
+    <div class="admin-title">🛠 상단원 정보 관리 <span id="modeText" style="font-size:13px;color:#a07212;">(등록 모드)</span></div>
     <div class="form-grid">
       <select id="position">
         <option value="상단명단">일반 상단원</option>
@@ -127,19 +141,19 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
         <option value="광목천왕">광목천왕</option>
         <option value="증장천왕">증장천왕</option>
       </select>
-      <input id="duty" placeholder="직책">
+      <input id="duty" placeholder="직책 (예: 부상단주)">
       <input id="note" placeholder="비고">
     </div>
     <div class="check-area">
-      <label><input type="checkbox" id="is2nd"> 2차 완료</label>
-      <label><input type="checkbox" id="isAwaken"> 각성 완료</label>
+      <label><input type="checkbox" id="is2nd" style="width:18px;height:18px"> 2차 완료</label>
+      <label><input type="checkbox" id="isAwaken" style="width:18px;height:18px"> 각성 완료</label>
     </div>
     <div class="admin-actions">
       <button class="admin-btn add-btn" onclick="newMember()">➕ 등록 모드</button>
       <button class="admin-btn save-btn" onclick="saveMember()">💾 저장</button>
       <button class="admin-btn cancel-btn" onclick="clearForm()">취소</button>
-      <button class="admin-btn backup-btn" onclick="downloadBackup()">📥 명단 백업</button>
-      <label class="restore-label">📤 백업 복원<input id="restoreFile" type="file" accept=".json" hidden onchange="restoreBackup(event)"></label>
+      <button class="admin-btn backup-btn" onclick="downloadBackup()">📥 백업</button>
+      <label class="restore-label">📤 복원<input id="restoreFile" type="file" accept=".json" hidden onchange="restoreBackup(event)"></label>
     </div>
     <div class="status" id="saveStatus"></div>
   </div>
@@ -154,7 +168,6 @@ let members=[];
 let editId=null;
 let adminMode=false;
 
-// 로컬 캐시 즉시 반영 (딜레이 최소화)
 try {
   const cached = localStorage.getItem("대한민국상단_캐시");
   if(cached){
@@ -194,7 +207,7 @@ async function loadMembers(){
    setStatus("동기화 완료");
  }catch(e){
    console.error(e);
-   setStatus("오프라인 모드 (캐시 데이터 사용 중)");
+   setStatus("오프라인 모드 (캐시 데이터 유지 중)");
    render();
  }
 }
@@ -242,7 +255,7 @@ function render(){
      <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
      <div class="exec-duty">${escapeHTML(m.duty||"임원진")}</div>
    </div>
- `).join("") : '<div style="color:#888;font-size:13px;padding:10px;">임원진이 없습니다.</div>';
+ `).join("") : '<div style="color:#888;font-size:13px;padding:10px;grid-column:1/-1;text-align:center;">임원진이 없습니다.</div>';
 
  const filtered=members.filter(m=>{
    const text=(m.name+" "+m.subs+" "+m.king).toLowerCase();
