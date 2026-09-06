@@ -168,16 +168,7 @@ let members=[];
 let editId=null;
 let adminMode=false;
 
-try {
-  const cached = localStorage.getItem("대한민국상단_캐시");
-  if(cached){
-    members = JSON.parse(cached);
-    if(Array.isArray(members) && members.length > 0){
-      document.addEventListener("DOMContentLoaded", () => render());
-    }
-  }
-} catch(e){}
-
+// 구글 시트 데이터를 최우선으로 불러오도록 변경 (캐시가 숫자를 붙잡고 있던 문제 해결)
 window.addEventListener("load", loadMembers);
 
 async function loadMembers(){
@@ -194,7 +185,6 @@ async function loadMembers(){
       const uniqueMap = new Map();
       rawList.forEach(m => {
         const normalized = normalizeMember(m);
-        // 여기서 닉네임(name) 기준으로 중복을 걸러내어 107명으로 맞춤
         if(normalized.name) {
           uniqueMap.set(normalized.name, normalized);
         }
@@ -210,6 +200,13 @@ async function loadMembers(){
     setStatus("동기화 완료");
   }catch(e){
     console.error(e);
+    // 통신 실패 시에만 기존 캐시 사용
+    try {
+      const cached = localStorage.getItem("대한민국상단_캐시");
+      if(cached){
+        members = JSON.parse(cached);
+      }
+    } catch(err){}
     setStatus("오프라인 모드 (캐시 데이터 유지 중)");
     render();
   }
