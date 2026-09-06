@@ -21,6 +21,10 @@ button,input,select{font-family:inherit}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
 .stat{background:#fff;border-radius:20px;padding:18px;text-align:center;box-shadow:0 5px 18px rgba(80,50,120,.08)}
 .stat-title{color:#888;font-size:14px}.stat-number{margin-top:5px;font-size:30px;font-weight:900;color:#7250a4}
+.search-box{background:#fff;border-radius:20px;padding:16px;margin-bottom:22px;box-shadow:0 5px 18px rgba(80,50,120,.08)}
+.search-row{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+.search-row input,.search-row select,.form-grid input,.form-grid select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;background:#fff;outline:none}
+.search-row input:focus,.search-row select:focus,.form-grid input:focus,.form-grid select:focus{border-color:#9871c7}
 .section-title{margin:25px 0 12px;padding-bottom:8px;border-bottom:1px solid #ddd;font-size:22px;font-weight:900;color:#614495}
 .executives{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
 .exec-card{background:#fff;border-radius:15px;padding:15px 10px;min-height:85px;text-align:center;box-shadow:0 5px 15px rgba(80,50,120,.08);transition:.2s}
@@ -55,7 +59,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 .status{text-align:center;color:#777;font-size:12px;margin:10px 0}
 @media(max-width:1100px){.executives{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:800px){
- .stats{grid-template-columns:1fr}.executives{grid-template-columns:repeat(2,1fr)}
+ .stats{grid-template-columns:1fr}.search-row{grid-template-columns:1fr}.executives{grid-template-columns:repeat(2,1fr)}
  .form-grid{grid-template-columns:1fr}.header img{max-height:none}
  .admin-login{top:76%;padding:10px 18px;font-size:13px}
 }
@@ -75,6 +79,21 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
     <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">0</div></div>
     <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">0</div></div>
     <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">0</div></div>
+  </div>
+
+  <!-- 닉네임 검색과 사천왕 선택만 남긴 검색 박스 -->
+  <div class="search-box">
+    <div class="search-row">
+      <input id="search" type="text" placeholder="🔎 닉네임 / 부캐릭터 / 사천왕 검색..." oninput="render()">
+      <select id="kingFilter" onchange="render()">
+        <option value="">전체 사천왕</option>
+        <option value="지국천왕">지국천왕</option>
+        <option value="다문천왕">다문천왕</option>
+        <option value="광목천왕">광목천왕</option>
+        <option value="증장천왕">증장천왕</option>
+        <option value="보유 없음">보유 없음</option>
+      </select>
+    </div>
   </div>
 
   <div class="section-title">👑 임원진 (<span id="execTitle">0</span>명)</div>
@@ -183,6 +202,9 @@ function kingClass(k){
 }
 
 function render(){
+ const search=document.getElementById("search").value.trim().toLowerCase();
+ const king=document.getElementById("kingFilter").value;
+
  const executives=members.filter(m=>m.position==="임원진");
  const normal=members.filter(m=>m.position!=="임원진");
 
@@ -199,8 +221,15 @@ function render(){
    </div>
  `).join("");
 
- // 검색창이 사라졌으므로 전체 명단을 대상으로 정렬 수행
- const filtered=[...members];
+ // 닉네임, 부캐릭터, 사천왕 검색 및 사천왕 필터 적용
+ const filtered=members.filter(m=>{
+   const text=(m.name+" "+m.subs+" "+m.king).toLowerCase();
+   if(search&&!text.includes(search))return false;
+   if(king&&m.king!==king)return false;
+   return true;
+ });
+
+ // 본캐 닉네임 기준 가나다 오름차순 정렬
  filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
  document.getElementById("memberList").innerHTML=filtered.map(m=>`
@@ -286,13 +315,13 @@ async function saveMember(){
  const idx=members.findIndex(m=>String(m.id)===String(member.id));
  if(idx>=0) members[idx]=member; else members.push(member);
 
- // 0초 반영: 화면과 폼을 즉시 갱신
+ // 0초 반영: 화면 즉시 갱신
  editId=null;
  clearForm();
  render();
  setStatus("저장 완료!");
 
- // 구글 시트 저장은 백그라운드에서 동기화
+ // 백그라운드 구글 시트 동기화
  backgroundSave();
 }
 
