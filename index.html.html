@@ -96,7 +96,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
   </div>
 
   <div class="section-title">👑 임원진 (<span id="execTitle">-</span>명)</div>
-  <div id="executives" class="executives"><div style="color:#888;font-size:13px;padding:10px;">불러오는 중...</div></div>
+  <div id="executives" class="executives"></div>
 
   <div class="section-title">📋 상단 명단</div>
   <div class="table-wrap">
@@ -107,9 +107,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
           <th>2차 완료</th><th>각성 완료</th><th>비고</th><th>관리</th>
         </tr>
       </thead>
-      <tbody id="memberList">
-        <tr><td colspan="8" style="padding:20px;color:#888;">데이터를 불러오는 중입니다... 잠시만 기다려주세요.</td></tr>
-      </tbody>
+      <tbody id="memberList"></tbody>
     </table>
   </div>
 
@@ -156,13 +154,13 @@ let members=[];
 let editId=null;
 let adminMode=false;
 
-// 로컬 스토리지에서 캐시된 데이터 즉시 불러오기 (새로고침 시 딜레이 체감 완화)
+// 로컬 캐시 즉시 반영 (딜레이 최소화)
 try {
   const cached = localStorage.getItem("대한민국상단_캐시");
   if(cached){
     members = JSON.parse(cached);
     if(Array.isArray(members) && members.length > 0){
-      render();
+      document.addEventListener("DOMContentLoaded", () => render());
     }
   }
 } catch(e){}
@@ -187,7 +185,6 @@ async function loadMembers(){
      });
      members = Array.from(uniqueMap.values());
      
-     // 최신 데이터 캐시 저장
      try {
        localStorage.setItem("대한민국상단_캐시", JSON.stringify(members));
      } catch(e){}
