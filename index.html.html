@@ -1,406 +1,77 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大韓民國 상단 - 현무서버</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;background:#f7f3ff;color:#222;font-family:"Noto Sans KR","Malgun Gothic",sans-serif}
-button,input,select{font-family:inherit}
-.header{position:relative;width:100%;overflow:hidden;background:#eef4ff}
-.header img{display:block;width:100%;height:auto;max-height:390px;object-fit:cover;object-position:center top}
-.admin-login{
- position:absolute;left:50%;top:78%;bottom:auto;transform:translateX(-50%);z-index:20;
- border:0;border-radius:30px;padding:12px 25px;
- background:#d99b16;color:#fff;font-size:15px;font-weight:900;
- box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;white-space:nowrap;
-}
-.admin-login:hover{transform:translateX(-50%) translateY(-2px)}
-.container{width:min(1400px,94%);margin:22px auto 45px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
-.stat{background:#fff;border-radius:20px;padding:18px;text-align:center;box-shadow:0 5px 18px rgba(80,50,120,.08)}
-.stat-title{color:#888;font-size:14px}.stat-number{margin-top:5px;font-size:30px;font-weight:900;color:#7250a4}
-.search-box{background:#fff;border-radius:20px;padding:16px;margin-bottom:22px;box-shadow:0 5px 18px rgba(80,50,120,.08)}
-.search-row{display:grid;grid-template-columns:2fr 1fr;gap:10px}
-.search-row input,.search-row select,.form-grid input,.form-grid select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;background:#fff;outline:none}
-.search-row input:focus,.search-row select:focus,.form-grid input:focus,.form-grid select:focus{border-color:#9871c7}
-.section-title{margin:25px 0 12px;padding-bottom:8px;border-bottom:1px solid #ddd;font-size:22px;font-weight:900;color:#614495}
-.executives{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
-.exec-card{background:#fff;border-radius:15px;padding:15px 10px;min-height:85px;text-align:center;box-shadow:0 5px 15px rgba(80,50,120,.08);transition:.2s}
-.exec-card:hover{transform:translateY(-3px)}
-.exec-name{font-size:17px;font-weight:900;color:#5e4287}.exec-duty{margin-top:5px;font-size:13px;color:#777}
-.table-wrap{width:100%;overflow-x:auto;background:#fff;border-radius:12px;box-shadow:0 5px 18px rgba(80,50,120,.08)}
-table{width:100%;min-width:1100px;border-collapse:collapse}
-thead th{padding:12px 8px;background:linear-gradient(#b17d18,#96640a);color:#fff;font-size:14px;white-space:nowrap}
-tbody td{padding:10px 8px;text-align:center;border-bottom:1px solid #eee;font-size:13px}
-tbody tr:hover td{background:#fcfaff}.main-name{font-weight:900;color:#4d3a69}
-.king-badge{display:inline-block;min-width:82px;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:900;background:#fff}
-.king-jiguk{color:#9148c7;border:2px solid #b86be8;background:#fbf3ff}
-.king-damun{color:#2474c7;border:2px solid #67a9ed;background:#f1f8ff}
-.king-gwangmok{color:#299452;border:2px solid #70c889;background:#f1fff5}
-.king-jeungjang{color:#e78a17;border:2px solid #f0a746;background:#fff8ed}
-.king-none{color:#888;border:2px solid #ccc;background:#f7f7f7}
-.complete{color:#098331;font-size:18px;font-weight:900}.incomplete{color:#aaa;font-size:15px}
-.manage-btn{border:0;border-radius:6px;padding:6px 10px;margin:1px;color:#fff;cursor:pointer;font-size:12px;font-weight:700}
-.edit-btn{background:#1769c2}.delete-btn{background:#e33434}
-.manage-btn:hover{opacity:.8}
-.admin-panel{display:none;margin-top:18px;background:linear-gradient(135deg,#fffdf7,#fff8ea);border:1px solid #e5d3ad;border-radius:12px;padding:18px;box-shadow:0 5px 18px rgba(80,50,120,.08)}
-.admin-panel.active{display:block}
-.admin-title{font-size:19px;font-weight:900;color:#62471f;margin-bottom:15px}
-.form-grid{display:grid;grid-template-columns:1fr 1.4fr 1.4fr 1fr 1fr 1.4fr;gap:9px}
-.form-grid input,.form-grid select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;background:#fff;outline:none}
-.form-grid input:focus,.form-grid select:focus{border-color:#9871c7}
-.check-area{display:flex;gap:25px;margin:12px 0}.check-area label{font-size:14px;font-weight:700}
-.admin-actions{display:flex;gap:8px;flex-wrap:wrap}
-.admin-btn{border:0;border-radius:8px;padding:10px 17px;cursor:pointer;font-weight:800}
-.add-btn{background:#c28b12;color:#fff}.save-btn{background:#208342;color:#fff}.cancel-btn{background:#999;color:#fff}.backup-btn{background:#3377ae;color:#fff}.restore-label{background:#6d55a5;color:#fff;border-radius:8px;padding:10px 17px;cursor:pointer;font-weight:800}
-footer{text-align:center;color:#888;font-size:12px;padding:20px}
-.status{text-align:center;color:#777;font-size:12px;margin:10px 0}
-@media(max-width:1100px){.executives{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:800px){
- .stats{grid-template-columns:1fr}.search-row{grid-template-columns:1fr}.executives{grid-template-columns:repeat(2,1fr)}
- .form-grid{grid-template-columns:1fr}.header img{max-height:none}
- .admin-login{top:76%;padding:10px 18px;font-size:13px}
-}
-@media(max-width:450px){.executives{grid-template-columns:1fr 1fr}}
-</style>
-</head>
-<body>
-
-<header class="header">
-  <img src="assets/banner.png" alt="大韓民國 상단 현무서버" onerror="this.src='banner.png'">
-  <button class="admin-login" onclick="adminLogin(event)">⚙ 관리자 인증 모드</button>
-</header>
-
-<div class="container">
-
-  <div class="stats">
-    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">0</div></div>
-    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">0</div></div>
-    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">0</div></div>
-  </div>
-
-  <div class="search-box">
-    <div class="search-row">
-      <input id="search" type="text" placeholder="🔎 닉네임 / 부캐릭터 / 사천왕 검색..." oninput="render()">
-      <select id="kingFilter" onchange="render()">
-        <option value="">전체 사천왕</option>
-        <option value="지국천왕">지국천왕</option>
-        <option value="다문천왕">다문천왕</option>
-        <option value="광목천왕">광목천왕</option>
-        <option value="증장천왕">증장천왕</option>
-        <option value="보유 없음">보유 없음</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="section-title">👑 임원진 (<span id="execTitle">0</span>명)</div>
-  <div id="executives" class="executives"></div>
-
-  <div class="section-title">📋 상단 명단</div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>직책</th><th>본캐 닉네임</th><th>부캐릭터</th><th>사천왕</th>
-          <th>2차 완료</th><th>각성 완료</th><th>비고</th><th>관리</th>
-        </tr>
-      </thead>
-      <tbody id="memberList"></tbody>
-    </table>
-  </div>
-
-  <div class="admin-panel" id="adminPanel">
-    <div class="admin-title">🛠 상단원 정보 관리 <span id="modeText">(등록 모드)</span></div>
-    <div class="form-grid">
-      <select id="position">
-        <option value="상단명단">일반 상단원</option>
-        <option value="임원진">임원진</option>
-      </select>
-      <input id="name" placeholder="본캐 닉네임">
-      <input id="subs" placeholder="부캐릭터 (쉼표로 구분)">
-      <select id="king">
-        <option value="보유 없음">보유 없음</option>
-        <option value="지국천왕">지국천왕</option>
-        <option value="다문천왕">다문천왕</option>
-        <option value="광목천왕">광목천왕</option>
-        <option value="증장천왕">증장천왕</option>
-      </select>
-      <input id="duty" placeholder="직책">
-      <input id="note" placeholder="비고">
-    </div>
-    <div class="check-area">
-      <label><input type="checkbox" id="is2nd"> 2차 완료</label>
-      <label><input type="checkbox" id="isAwaken"> 각성 완료</label>
-    </div>
-    <div class="admin-actions">
-      <button class="admin-btn add-btn" onclick="newMember()">➕ 등록 모드</button>
-      <button class="admin-btn save-btn" onclick="saveMember()">💾 저장</button>
-      <button class="admin-btn cancel-btn" onclick="clearForm()">취소</button>
-      <button class="admin-btn backup-btn" onclick="downloadBackup()">📥 명단 백업</button>
-      <label class="restore-label">📤 백업 복원<input id="restoreFile" type="file" accept=".json" hidden onchange="restoreBackup(event)"></label>
-    </div>
-    <div class="status" id="saveStatus"></div>
-  </div>
-</div>
-
-<footer>© 2026 大韓民國 상단 | 현무서버 All rights reserved.</footer>
-
-<script>
-const API_URL="https://script.google.com/macros/s/AKfycbyj3TC79wglpRc2XgVUXdtHYm6cUFTeOB3AJ2dDo1FDxDRsXgD_EAcOVDqF1KVAysZLkA/exec";
-const ADMIN_PASSWORD="1357";
-let members=[];
-let editId=null;
-let adminMode=false;
-
-window.addEventListener("load",loadMembers);
-
-async function loadMembers(){
- setStatus("명단을 불러오는 중...");
- try{
-   const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
-   const data=await res.json();
-   
-   // 이름이 없거나 빈 문자열인 경우 철저하게 제외
-   members = Array.isArray(data) 
-     ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "" && String(m.name || "").trim() !== "undefined" && String(m.name || "").trim() !== "null").map(normalizeMember) 
-     : [];
-
-   render();
-   setStatus("Google Sheet 연결 완료");
- }catch(e){
-   console.error(e);
-   setStatus("Google Sheet 연결 실패");
- }
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var rows = sheet.getDataRange().getValues();
+  var list = [];
+  
+  // 첫 번째 행은 헤더이므로 i=1부터 시작
+  for (var i = 1; i < rows.length; i++) {
+    var r = rows[i];
+    if (r[1] && String(r[1]).trim() !== "") { // 이름이 있는 경우만 수집
+      list.push({
+        id: String(r[0] || "member_" + i),
+        name: String(r[1] || ""),
+        subs: String(r[2] || ""),
+        king: String(r[3] || "보유 없음"),
+        is2nd: r[4] === true || r[4] === "true" || r[4] === "TRUE",
+        isAwaken: r[5] === true || r[5] === "true" || r[5] === "TRUE",
+        duty: String(r[6] || ""),
+        note: String(r[7] || ""),
+        position: String(r[8] || "상단명단")
+      });
+    }
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify(list))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-function normalizeMember(m){
- return {
-   id:m.id||createId(),
-   name:String(m.name||"").trim(),
-   subs:String(m.subs||"").trim(),
-   note:String(m.note||"").trim(),
-   duty:String(m.duty||"").trim(),
-   king:m.king||"보유 없음",
-   position:m.position||"상단명단",
-   is2nd:toBoolean(m.is2nd),
-   isAwaken:toBoolean(m.isAwaken)
- };
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000); // 동시 요청 충돌 방지 락
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    
+    // 시트 초기화 후 헤더 재작성
+    sheet.clear();
+    sheet.appendRow(["ID", "본캐 닉네임", "부캐릭터", "사천왕", "2차 완료", "각성 완료", "직책", "비고", "직책분류"]);
+    
+    var rowsToAppend = [];
+    // 중복 방지를 위해 고유 ID 기준으로 데이터 정제 (Map 이용)
+    var uniqueMap = new Map();
+    
+    data.forEach(function(m) {
+      if (m && m.name && String(m.name).trim() !== "") {
+        var id = String(m.id || ("member_" + Date.now() + "_" + Math.random()));
+        uniqueMap.set(id, [
+          id,
+          String(m.name || ""),
+          String(m.subs || ""),
+          String(m.king || "보유 없음"),
+          !!m.is2nd,
+          !!m.isAwaken,
+          String(m.duty || ""),
+          String(m.note || ""),
+          String(m.position || "상단명단")
+        ]);
+      }
+    });
+    
+    uniqueMap.forEach(function(row) {
+      rowsToAppend.push(row);
+    });
+    
+    if (rowsToAppend.length > 0) {
+      sheet.getRange(2, 1, rowsToAppend.length, rowsToAppend[0].length).setValues(rowsToAppend);
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({status: "success", count: rowsToAppend.length}))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
 }
-
-function toBoolean(v){
- return v===true||v==="true"||v==="TRUE"||v===1||v==="1";
-}
-
-function kingClass(k){
- if(k==="지국천왕")return"king-jiguk";
- if(k==="다문천왕")return"king-damun";
- if(k==="광목천왕")return"king-gwangmok";
- if(k==="증장천왕")return"king-jeungjang";
- return"king-none";
-}
-
-function render(){
- const search=document.getElementById("search").value.trim().toLowerCase();
- const king=document.getElementById("kingFilter").value;
-
- const executives=members.filter(m=>m.position==="임원진");
- const normal=members.filter(m=>m.position!=="임원진");
-
- // 통계 수치 반영
- document.getElementById("totalCount").textContent=members.length;
- document.getElementById("execCount").textContent=executives.length;
- document.getElementById("normalCount").textContent=normal.length;
- document.getElementById("execTitle").textContent=executives.length;
-
- document.getElementById("executives").innerHTML=executives.map(m=>`
-   <div class="exec-card">
-     <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
-     <div class="exec-duty">${escapeHTML(m.duty||"임원진")}</div>
-   </div>
- `).join("");
-
- const filtered=members.filter(m=>{
-   const text=(m.name+" "+m.subs+" "+m.king).toLowerCase();
-   if(search&&!text.includes(search))return false;
-   if(king&&m.king!==king)return false;
-   return true;
- });
-
- filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-
- document.getElementById("memberList").innerHTML=filtered.map(m=>`
-   <tr>
-     <td>${escapeHTML(m.duty||"-")}</td>
-     <td class="main-name">${escapeHTML(m.name)}</td>
-     <td>${escapeHTML(m.subs||"-")}</td>
-     <td><span class="king-badge ${kingClass(m.king)}">${escapeHTML(m.king||"보유 없음")}</span></td>
-     <td>${m.is2nd?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
-     <td>${m.isAwaken?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
-     <td>${escapeHTML(m.note||"-")}</td>
-     <td>${adminMode?
-       `<button class="manage-btn edit-btn" onclick="editMember('${escapeJS(m.id)}')">수정</button>
-        <button class="manage-btn delete-btn" onclick="deleteMember('${escapeJS(m.id)}')">삭제</button>`:"-"}</td>
-   </tr>
- `).join("");
-}
-
-function adminLogin(e){
- if(e)e.stopPropagation();
- if(adminMode){
-   adminMode=false;
-   document.getElementById("adminPanel").classList.remove("active");
-   clearForm();
-   render();
-   return;
- }
- const pw=prompt("관리자 비밀번호를 입력하세요.");
- if(pw===ADMIN_PASSWORD){
-   adminMode=true;
-   document.getElementById("adminPanel").classList.add("active");
-   document.getElementById("adminPanel").scrollIntoView({behavior:"smooth",block:"start"});
-   render();
-   alert("관리자 인증 완료!");
- }else if(pw!==null){
-   alert("비밀번호가 틀렸습니다.");
- }
-}
-
-function newMember(){
- if(!adminMode){alert("먼저 관리자 인증을 해주세요.");return}
- editId=null;
- clearForm();
- document.getElementById("adminPanel").classList.add("active");
- document.getElementById("modeText").textContent="(등록 모드)";
-}
-
-function editMember(id){
- if(!adminMode){alert("관리자 인증이 필요합니다.");return}
- const m=members.find(x=>String(x.id)===String(id));
- if(!m)return alert("회원을 찾을 수 없습니다.");
- editId=m.id;
- document.getElementById("position").value=m.position;
- document.getElementById("name").value=m.name;
- document.getElementById("subs").value=m.subs;
- document.getElementById("king").value=m.king;
- document.getElementById("duty").value=m.duty;
- document.getElementById("note").value=m.note;
- document.getElementById("is2nd").checked=m.is2nd;
- document.getElementById("isAwaken").checked=m.isAwaken;
- document.getElementById("modeText").textContent="(수정 모드)";
- document.getElementById("adminPanel").classList.add("active");
- document.getElementById("adminPanel").scrollIntoView({behavior:"smooth"});
-}
-
-async function saveMember(){
- if(!adminMode){alert("먼저 관리자 인증을 해주세요.");return}
- const name=document.getElementById("name").value.trim();
- if(!name){alert("본캐 닉네임을 입력해주세요.");return}
-
- const member={
-   id:editId||createId(),
-   name,
-   subs:document.getElementById("subs").value.trim(),
-   note:document.getElementById("note").value.trim(),
-   duty:document.getElementById("duty").value.trim(),
-   king:document.getElementById("king").value,
-   position:document.getElementById("position").value,
-   is2nd:document.getElementById("is2nd").checked,
-   isAwaken:document.getElementById("isAwaken").checked
- };
-
- const idx=members.findIndex(m=>String(m.id)===String(member.id));
- if(idx>=0) members[idx]=member; else members.push(member);
-
- editId=null;
- clearForm();
- render();
- setStatus("저장 완료!");
- backgroundSave();
-}
-
-async function deleteMember(id){
- if(!adminMode){alert("관리자 인증이 필요합니다.");return}
- const m=members.find(x=>String(x.id)===String(id));
- if(!m)return;
- if(!confirm("["+m.name+"] 회원을 정말 삭제하시겠습니까?"))return;
- 
- members=members.filter(x=>String(x.id)!==String(id));
- render();
- setStatus("삭제 완료!");
- backgroundSave();
-}
-
-async function backgroundSave(){
- try{
-   await fetch(API_URL,{
-     method:"POST",
-     headers:{"Content-Type":"text/plain;charset=utf-8"},
-     body:JSON.stringify(members)
-   });
- }catch(e){
-   console.error("구글 시트 동기화 오류:", e);
- }
-}
-
-function clearForm(){
- editId=null;
- document.getElementById("position").value="상단명단";
- document.getElementById("name").value="";
- document.getElementById("subs").value="";
- document.getElementById("king").value="보유 없음";
- document.getElementById("duty").value="";
- document.getElementById("note").value="";
- document.getElementById("is2nd").checked=false;
- document.getElementById("isAwaken").checked=false;
- document.getElementById("modeText").textContent="(등록 모드)";
-}
-
-function downloadBackup(){
- const blob=new Blob([JSON.stringify(members,null,2)],{type:"application/json;charset=utf-8"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");
- a.href=url;
- a.download="대한민국상단_명단백업_"+new Date().toISOString().slice(0,10)+".json";
- document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
-}
-
-function restoreBackup(e){
- const file=e.target.files[0];
- if(!file)return;
- const reader=new FileReader();
- reader.onload=async()=>{
-   try{
-     const data=JSON.parse(reader.result);
-     if(!Array.isArray(data))throw new Error("백업 파일 형식이 올바르지 않습니다.");
-     if(!confirm("현재 명단을 백업 파일 내용으로 교체하고 Google Sheet에 저장할까요?"))return;
-     members=data.filter(m => m && String(m.name || "").trim() !== "").map(normalizeMember);
-     render();
-     setStatus("복원 완료!");
-     backgroundSave();
-   }catch(err){alert("백업 복원 실패\n"+err.message)}
-   e.target.value="";
- };
- reader.readAsText(file,"utf-8");
-}
-
-function createId(){
- return "member_"+Date.now()+"_"+Math.floor(Math.random()*100000);
-}
-
-function escapeHTML(v){
- return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-}
-
-function escapeJS(v){
- return String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,'\\"');
-}
-
-function setStatus(text){
- const el=document.getElementById("saveStatus");
- if(el)el.textContent=text;
-}
-</script>
-</body>
-</html>
