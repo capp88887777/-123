@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
 <title>大韓民國 상단</title>
 
 <style>
+
+/* =====================================================
+   기본
+===================================================== */
+
 *{
     box-sizing:border-box;
 }
 
 body{
     margin:0;
+    background:#f7f3ff;
+    color:#222;
     font-family:
         "Noto Sans KR",
         "Malgun Gothic",
         sans-serif;
-    background:#f7f3ff;
-    color:#333;
 }
 
 button,
@@ -27,116 +35,63 @@ select{
     font-family:inherit;
 }
 
-/* =========================
+
+/* =====================================================
    상단 배너
-========================= */
+===================================================== */
 
 .header{
-    position:relative;
-    min-height:260px;
-    padding:35px 20px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-
-    background:
-        linear-gradient(
-            135deg,
-            #dff5ff,
-            #eee4ff,
-            #fff1d6
-        );
-}
-
-.header::before{
-    content:"☁️   ☁️      ✨        ☁️";
-    position:absolute;
-    top:20px;
-    left:0;
     width:100%;
-    text-align:center;
-    font-size:35px;
-    opacity:.8;
+    overflow:hidden;
+    background:#eee;
 }
 
-.header-box{
-    position:relative;
-    z-index:2;
-    text-align:center;
+.header img{
+    display:block;
+    width:100%;
+    height:auto;
+    max-height:380px;
+    object-fit:cover;
+    object-position:center top;
 }
 
-.title{
-    margin:0;
-    font-size:45px;
-    font-weight:900;
-    letter-spacing:3px;
-    color:#6b4e9b;
-    text-shadow:
-        2px 2px 0 white,
-        0 4px 12px rgba(0,0,0,.12);
-}
 
-.subtitle{
-    margin-top:10px;
-    font-size:18px;
-    font-weight:700;
-    color:#735f91;
-}
-
-.server{
-    display:inline-block;
-    margin-top:12px;
-    padding:7px 18px;
-    border-radius:30px;
-    background:white;
-    color:#8063ad;
-    font-weight:bold;
-    box-shadow:0 4px 12px rgba(0,0,0,.1);
-}
-
-.admin-btn{
-    margin-top:18px;
-    border:0;
-    padding:12px 24px;
-    border-radius:30px;
-    background:linear-gradient(135deg,#ffd86b,#ffb84d);
-    color:#654500;
-    font-weight:900;
-    cursor:pointer;
-    box-shadow:0 5px 12px rgba(0,0,0,.15);
-}
-
-.admin-btn:hover{
-    transform:translateY(-2px);
-}
-
-/* =========================
+/* =====================================================
    전체
-========================= */
+===================================================== */
 
 .container{
     width:min(1400px,94%);
-    margin:25px auto 60px;
+    margin:22px auto 50px;
 }
 
-/* =========================
+
+/* =====================================================
    통계
-========================= */
+===================================================== */
 
 .stats{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-    margin-bottom:20px;
+    grid-template-columns:
+        repeat(3,1fr);
+
+    gap:14px;
+
+    margin-bottom:18px;
 }
 
 .stat{
     background:white;
+
     border-radius:20px;
-    padding:20px;
+
+    padding:18px;
+
     text-align:center;
-    box-shadow:0 5px 18px rgba(70,50,100,.08);
+
+    box-shadow:
+        0 5px 18px
+        rgba(80,50,120,.08);
 }
 
 .stat-title{
@@ -146,617 +101,1019 @@ select{
 
 .stat-number{
     margin-top:5px;
+
     font-size:30px;
+
     font-weight:900;
-    color:#7354a1;
+
+    color:#7250a4;
 }
 
-/* =========================
+
+/* =====================================================
    검색
-========================= */
+===================================================== */
 
 .search-box{
+
     background:white;
-    padding:18px;
+
     border-radius:20px;
-    box-shadow:0 5px 18px rgba(70,50,100,.08);
-    margin-bottom:20px;
+
+    padding:16px;
+
+    margin-bottom:22px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(80,50,120,.08);
 }
 
 .search-row{
+
     display:grid;
-    grid-template-columns:2fr 1fr 1fr 1fr;
+
+    grid-template-columns:
+        1.5fr
+        1fr
+        1fr
+        1fr;
+
     gap:10px;
 }
 
 .search-row input,
 .search-row select{
+
     width:100%;
+
     padding:12px;
-    border:1px solid #ddd;
-    border-radius:12px;
+
+    border:
+        1px solid #ddd;
+
+    border-radius:10px;
+
+    background:white;
+
     outline:none;
-    background:#fff;
 }
 
 .search-row input:focus,
 .search-row select:focus{
-    border-color:#a78bd0;
+
+    border-color:#9d7cc7;
+
 }
 
-/* =========================
-   임원진
-========================= */
+
+/* =====================================================
+   제목
+===================================================== */
 
 .section-title{
-    font-size:23px;
+
+    margin:
+        25px 0 12px;
+
+    padding-bottom:8px;
+
+    border-bottom:
+        1px solid #ddd;
+
+    font-size:22px;
+
     font-weight:900;
-    color:#62458e;
-    margin:25px 0 12px;
+
+    color:#614495;
 }
 
+
+/* =====================================================
+   임원진
+===================================================== */
+
 .executives{
+
     display:grid;
+
     grid-template-columns:
-        repeat(auto-fill,minmax(190px,1fr));
+        repeat(6,1fr);
+
     gap:12px;
 }
 
 .exec-card{
+
     background:white;
-    border-radius:18px;
-    padding:17px;
-    box-shadow:0 5px 15px rgba(70,50,100,.08);
-    border:1px solid #eee;
+
+    border-radius:15px;
+
+    padding:15px 10px;
+
+    min-height:85px;
+
+    text-align:center;
+
+    box-shadow:
+        0 5px 15px
+        rgba(80,50,120,.08);
+
+    transition:.2s;
+}
+
+.exec-card:hover{
+
+    transform:
+        translateY(-3px);
+
 }
 
 .exec-name{
-    font-size:19px;
+
+    font-size:17px;
+
     font-weight:900;
-    color:#5f4784;
+
+    color:#5e4287;
 }
 
 .exec-duty{
+
     margin-top:5px;
-    color:#999;
+
     font-size:13px;
+
+    color:#777;
 }
 
-/* =========================
-   테이블
-========================= */
+
+/* =====================================================
+   명단 테이블
+===================================================== */
 
 .table-wrap{
+
+    width:100%;
+
+    overflow-x:auto;
+
     background:white;
-    border-radius:20px;
-    box-shadow:0 5px 18px rgba(70,50,100,.08);
-    overflow:auto;
+
+    border-radius:12px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(80,50,120,.08);
 }
 
 table{
+
     width:100%;
-    border-collapse:collapse;
-    min-width:950px;
+
+    min-width:1050px;
+
+    border-collapse:
+        collapse;
 }
 
-th{
-    background:#eee7fa;
-    color:#634987;
-    padding:14px 10px;
+thead th{
+
+    padding:12px 8px;
+
+    background:
+        linear-gradient(
+            #b17d18,
+            #96640a
+        );
+
+    color:white;
+
     font-size:14px;
+
     white-space:nowrap;
 }
 
-td{
-    padding:13px 10px;
-    border-bottom:1px solid #eee;
+tbody td{
+
+    padding:10px 8px;
+
     text-align:center;
-    font-size:14px;
+
+    border-bottom:
+        1px solid #eee;
+
+    font-size:13px;
 }
 
-tr:hover td{
-    background:#faf8ff;
+tbody tr:hover td{
+
+    background:#fcfaff;
+
 }
 
-.name{
+.main-name{
+
     font-weight:900;
-    color:#59427b;
+
+    color:#4d3a69;
 }
 
-.badge{
+
+/* =====================================================
+   ⭐ 사천왕 컬러 ⭐
+===================================================== */
+
+.king-badge{
+
     display:inline-block;
-    padding:5px 10px;
+
+    min-width:82px;
+
+    padding:
+        5px 10px;
+
     border-radius:20px;
+
     font-size:12px;
-    font-weight:bold;
+
+    font-weight:900;
+
+    background:white;
 }
 
-.badge.yes{
-    background:#e2f8e9;
-    color:#32804c;
+
+/* 지국 */
+
+.king-jiguk{
+
+    color:#9148c7;
+
+    border:
+        2px solid #b86be8;
+
+    background:#fbf3ff;
 }
 
-.badge.no{
-    background:#f2f2f2;
-    color:#999;
+
+/* 다문 */
+
+.king-damun{
+
+    color:#2474c7;
+
+    border:
+        2px solid #67a9ed;
+
+    background:#f1f8ff;
 }
 
-/* =========================
+
+/* 광목 */
+
+.king-gwangmok{
+
+    color:#299452;
+
+    border:
+        2px solid #70c889;
+
+    background:#f1fff5;
+}
+
+
+/* 증장 */
+
+.king-jeungjang{
+
+    color:#e78a17;
+
+    border:
+        2px solid #f0a746;
+
+    background:#fff8ed;
+}
+
+
+/* 없음 */
+
+.king-none{
+
+    color:#888;
+
+    border:
+        2px solid #ccc;
+
+    background:#f7f7f7;
+}
+
+
+/* =====================================================
+   완료 표시
+===================================================== */
+
+.complete{
+
+    color:#098331;
+
+    font-size:18px;
+
+    font-weight:900;
+}
+
+.incomplete{
+
+    color:#aaa;
+
+    font-size:15px;
+}
+
+
+/* =====================================================
+   관리 버튼
+===================================================== */
+
+.manage-btn{
+
+    border:0;
+
+    border-radius:6px;
+
+    padding:
+        6px 10px;
+
+    margin:
+        1px;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:12px;
+
+    font-weight:700;
+}
+
+.edit-btn{
+
+    background:#1769c2;
+}
+
+.delete-btn{
+
+    background:#e33434;
+}
+
+.edit-btn:hover,
+.delete-btn:hover{
+
+    opacity:.8;
+}
+
+
+/* =====================================================
    관리자
-========================= */
+===================================================== */
 
 .admin-panel{
+
     display:none;
-    margin-bottom:20px;
-    background:white;
-    border-radius:20px;
-    padding:20px;
-    box-shadow:0 5px 18px rgba(70,50,100,.1);
-    border:2px solid #eadfff;
+
+    margin-top:18px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #fffdf7,
+            #fff8ea
+        );
+
+    border:
+        1px solid #e5d3ad;
+
+    border-radius:12px;
+
+    padding:18px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(80,50,120,.08);
 }
 
 .admin-panel.active{
+
     display:block;
 }
 
 .admin-title{
-    font-size:20px;
+
+    font-size:19px;
+
     font-weight:900;
-    color:#65478e;
+
+    color:#62471f;
+
     margin-bottom:15px;
 }
 
+
+/* =====================================================
+   입력
+===================================================== */
+
 .form-grid{
+
     display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:12px;
+
+    grid-template-columns:
+        1fr
+        1.4fr
+        1.4fr
+        1fr
+        1fr
+        1.4fr;
+
+    gap:9px;
 }
 
 .form-grid input,
 .form-grid select{
+
     width:100%;
-    padding:12px;
-    border:1px solid #ddd;
-    border-radius:12px;
+
+    padding:10px;
+
+    border:
+        1px solid #ddd;
+
+    border-radius:8px;
+
+    background:white;
 }
+
+
+/* =====================================================
+   체크
+===================================================== */
 
 .check-area{
+
     display:flex;
-    gap:20px;
-    align-items:center;
-    padding:10px 0;
+
+    gap:25px;
+
+    margin:
+        12px 0;
 }
 
+.check-area label{
+
+    font-size:14px;
+
+    font-weight:700;
+}
+
+
+/* =====================================================
+   관리자 버튼
+===================================================== */
+
 .admin-actions{
+
     display:flex;
+
     gap:8px;
-    margin-top:15px;
+
     flex-wrap:wrap;
 }
 
-.btn{
+.admin-btn{
+
     border:0;
-    border-radius:12px;
-    padding:10px 16px;
+
+    border-radius:8px;
+
+    padding:
+        10px 17px;
+
     cursor:pointer;
-    font-weight:bold;
+
+    font-weight:800;
 }
 
-.btn-add{
-    background:#dff5e5;
-    color:#28743e;
+.add-btn{
+
+    background:#c28b12;
+
+    color:white;
 }
 
-.btn-save{
-    background:#e9ddff;
-    color:#63448d;
+.save-btn{
+
+    background:#208342;
+
+    color:white;
 }
 
-.btn-cancel{
-    background:#eee;
-    color:#666;
+.cancel-btn{
+
+    background:#999;
+
+    color:white;
 }
 
-.btn-delete{
-    background:#ffe1e1;
-    color:#a43d3d;
+.backup-btn{
+
+    background:#3377ae;
+
+    color:white;
 }
 
-.btn-backup{
-    background:#dff2ff;
-    color:#39729a;
+
+/* =====================================================
+   푸터
+===================================================== */
+
+footer{
+
+    text-align:center;
+
+    color:#888;
+
+    font-size:12px;
+
+    padding:
+        20px;
 }
 
-/* =========================
+
+/* =====================================================
    모바일
-========================= */
+===================================================== */
+
+@media(max-width:1100px){
+
+    .executives{
+
+        grid-template-columns:
+            repeat(3,1fr);
+    }
+
+}
 
 @media(max-width:800px){
 
-    .header{
-        min-height:220px;
-    }
-
-    .title{
-        font-size:32px;
-    }
-
-    .subtitle{
-        font-size:14px;
-    }
-
     .stats{
-        grid-template-columns:1fr;
+
+        grid-template-columns:
+            1fr;
     }
 
     .search-row{
-        grid-template-columns:1fr;
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .executives{
+
+        grid-template-columns:
+            repeat(2,1fr);
     }
 
     .form-grid{
-        grid-template-columns:1fr;
-    }
 
-    .container{
-        width:96%;
+        grid-template-columns:
+            1fr;
     }
 
 }
+
+@media(max-width:450px){
+
+    .executives{
+
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+}
+
 </style>
+
 </head>
+
 
 <body>
 
-<!-- =========================
-     HEADER
-========================= -->
+
+<!-- =====================================================
+     상단 이미지
+===================================================== -->
 
 <header class="header">
 
-    <div class="header-box">
-
-        <h1 class="title">大韓民國</h1>
-
-        <div class="subtitle">
-            대한민국 상단
-        </div>
-
-        <div class="server">
-            🐢 현무서버
-        </div>
-
-        <br>
-
-        <button class="admin-btn"
-                onclick="adminLogin()">
-            🔐 관리자 인증 모드
-        </button>
-
-    </div>
+    <img
+        src="assets/banner.png"
+        alt="大韓民國 상단 현무서버">
 
 </header>
 
 
+
 <div class="container">
 
-    <!-- =========================
-         관리자 패널
-    ========================= -->
 
-    <div id="adminPanel"
-         class="admin-panel">
+<!-- =====================================================
+     통계
+===================================================== -->
 
-        <div class="admin-title">
-            🛠 관리자 회원 관리
+<div class="stats">
+
+    <div class="stat">
+
+        <div class="stat-title">
+            전체 인원
         </div>
 
-        <div class="form-grid">
-
-            <input
-                id="name"
-                placeholder="본캐 닉네임">
-
-            <input
-                id="subs"
-                placeholder="부캐릭터">
-
-            <input
-                id="duty"
-                placeholder="직책">
-
-            <select id="king">
-
-                <option value="보유 없음">
-                    사천왕 - 보유 없음
-                </option>
-
-                <option value="지국천왕">
-                    지국천왕
-                </option>
-
-                <option value="다문천왕">
-                    다문천왕
-                </option>
-
-                <option value="광목천왕">
-                    광목천왕
-                </option>
-
-                <option value="증장천왕">
-                    증장천왕
-                </option>
-
-            </select>
-
-            <select id="position">
-
-                <option value="상단명단">
-                    일반 상단원
-                </option>
-
-                <option value="임원진">
-                    임원진
-                </option>
-
-            </select>
-
-            <input
-                id="note"
-                placeholder="비고">
-
-        </div>
-
-        <div class="check-area">
-
-            <label>
-                <input
-                    type="checkbox"
-                    id="is2nd">
-                2차 완료
-            </label>
-
-            <label>
-                <input
-                    type="checkbox"
-                    id="isAwaken">
-                각성 완료
-            </label>
-
-        </div>
-
-        <div class="admin-actions">
-
-            <button
-                class="btn btn-add"
-                onclick="newMember()">
-                ➕ 새 회원
-            </button>
-
-            <button
-                class="btn btn-save"
-                onclick="saveMember()">
-                💾 저장
-            </button>
-
-            <button
-                class="btn btn-cancel"
-                onclick="cancelEdit()">
-                취소
-            </button>
-
-            <button
-                class="btn btn-backup"
-                onclick="downloadBackup()">
-                📥 백업
-            </button>
-
+        <div
+            class="stat-number"
+            id="totalCount">
+            0
         </div>
 
     </div>
 
 
-    <!-- =========================
-         통계
-    ========================= -->
+    <div class="stat">
 
-    <div class="stats">
-
-        <div class="stat">
-
-            <div class="stat-title">
-                전체 인원
-            </div>
-
-            <div
-                class="stat-number"
-                id="totalCount">
-                0
-            </div>
-
+        <div class="stat-title">
+            임원진
         </div>
 
-        <div class="stat">
-
-            <div class="stat-title">
-                임원진
-            </div>
-
-            <div
-                class="stat-number"
-                id="execCount">
-                0
-            </div>
-
-        </div>
-
-        <div class="stat">
-
-            <div class="stat-title">
-                일반 상단원
-            </div>
-
-            <div
-                class="stat-number"
-                id="normalCount">
-                0
-            </div>
-
+        <div
+            class="stat-number"
+            id="execCount">
+            0
         </div>
 
     </div>
 
 
-    <!-- =========================
-         검색
-    ========================= -->
+    <div class="stat">
 
-    <div class="search-box">
-
-        <div class="search-row">
-
-            <input
-                id="search"
-                placeholder="🔎 닉네임 / 부캐릭터 검색"
-                oninput="render()">
-
-            <select
-                id="positionFilter"
-                onchange="render()">
-
-                <option value="">
-                    전체 직책
-                </option>
-
-                <option value="임원진">
-                    임원진
-                </option>
-
-                <option value="상단명단">
-                    일반 상단원
-                </option>
-
-            </select>
-
-            <select
-                id="kingFilter"
-                onchange="render()">
-
-                <option value="">
-                    전체 사천왕
-                </option>
-
-                <option value="지국천왕">
-                    지국천왕
-                </option>
-
-                <option value="다문천왕">
-                    다문천왕
-                </option>
-
-                <option value="광목천왕">
-                    광목천왕
-                </option>
-
-                <option value="증장천왕">
-                    증장천왕
-                </option>
-
-                <option value="보유 없음">
-                    보유 없음
-                </option>
-
-            </select>
-
-            <select
-                id="completeFilter"
-                onchange="render()">
-
-                <option value="">
-                    전체 완료 여부
-                </option>
-
-                <option value="2nd">
-                    2차 완료
-                </option>
-
-                <option value="awaken">
-                    각성 완료
-                </option>
-
-            </select>
-
+        <div class="stat-title">
+            일반 상단원
         </div>
 
-    </div>
-
-
-    <!-- =========================
-         임원진
-    ========================= -->
-
-    <div class="section-title">
-        👑 임원진
-    </div>
-
-    <div
-        id="executives"
-        class="executives">
-    </div>
-
-
-    <!-- =========================
-         명단
-    ========================= -->
-
-    <div class="section-title">
-        📋 상단 명단
-    </div>
-
-    <div class="table-wrap">
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>직책</th>
-                    <th>본캐 닉네임</th>
-                    <th>부캐릭터</th>
-                    <th>사천왕</th>
-                    <th>2차</th>
-                    <th>각성</th>
-                    <th>비고</th>
-                    <th>관리</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody id="memberList">
-
-            </tbody>
-
-        </table>
+        <div
+            class="stat-number"
+            id="normalCount">
+            0
+        </div>
 
     </div>
 
 </div>
 
 
+
+<!-- =====================================================
+     검색
+===================================================== -->
+
+<div class="search-box">
+
+    <div class="search-row">
+
+        <input
+            id="search"
+            type="text"
+            placeholder="🔎 닉네임 / 부캐릭터 검색..."
+            oninput="render()">
+
+
+        <select
+            id="positionFilter"
+            onchange="render()">
+
+            <option value="">
+                전체 직책
+            </option>
+
+            <option value="임원진">
+                임원진
+            </option>
+
+            <option value="상단명단">
+                일반 상단원
+            </option>
+
+        </select>
+
+
+        <select
+            id="kingFilter"
+            onchange="render()">
+
+            <option value="">
+                전체 사천왕
+            </option>
+
+            <option value="지국천왕">
+                지국천왕
+            </option>
+
+            <option value="다문천왕">
+                다문천왕
+            </option>
+
+            <option value="광목천왕">
+                광목천왕
+            </option>
+
+            <option value="증장천왕">
+                증장천왕
+            </option>
+
+            <option value="보유 없음">
+                보유 없음
+            </option>
+
+        </select>
+
+
+        <select
+            id="completeFilter"
+            onchange="render()">
+
+            <option value="">
+                전체 완료 여부
+            </option>
+
+            <option value="2nd">
+                2차 완료
+            </option>
+
+            <option value="awaken">
+                각성 완료
+            </option>
+
+        </select>
+
+    </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     임원진
+===================================================== -->
+
+<div class="section-title">
+
+    👑 임원진
+    (<span id="execTitle">0</span>명)
+
+</div>
+
+
+<div
+    id="executives"
+    class="executives">
+</div>
+
+
+
+<!-- =====================================================
+     상단 명단
+===================================================== -->
+
+<div class="section-title">
+
+    📋 상단 명단
+
+</div>
+
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+    <th>직책</th>
+
+    <th>본캐 닉네임</th>
+
+    <th>부캐릭터</th>
+
+    <th>사천왕</th>
+
+    <th>2차 완료</th>
+
+    <th>각성 완료</th>
+
+    <th>비고</th>
+
+    <th>관리</th>
+
+</tr>
+
+</thead>
+
+
+<tbody
+    id="memberList">
+</tbody>
+
+</table>
+
+</div>
+
+
+
+<!-- =====================================================
+     관리자
+===================================================== -->
+
+<div
+    id="adminPanel"
+    class="admin-panel">
+
+
+<div class="admin-title">
+
+    🛠 상단원 정보 관리
+
+</div>
+
+
+<div class="form-grid">
+
+
+<select id="position">
+
+    <option value="상단명단">
+        일반 상단원
+    </option>
+
+    <option value="임원진">
+        임원진
+    </option>
+
+</select>
+
+
+<input
+    id="name"
+    placeholder="본캐 닉네임">
+
+
+<input
+    id="subs"
+    placeholder="부캐릭터">
+
+
+<select id="king">
+
+    <option value="보유 없음">
+        보유 없음
+    </option>
+
+    <option value="지국천왕">
+        지국천왕
+    </option>
+
+    <option value="다문천왕">
+        다문천왕
+    </option>
+
+    <option value="광목천왕">
+        광목천왕
+    </option>
+
+    <option value="증장천왕">
+        증장천왕
+    </option>
+
+</select>
+
+
+<input
+    id="duty"
+    placeholder="직책">
+
+
+<input
+    id="note"
+    placeholder="비고">
+
+
+</div>
+
+
+
+<div class="check-area">
+
+<label>
+
+    <input
+        type="checkbox"
+        id="is2nd">
+
+    2차 완료
+
+</label>
+
+
+<label>
+
+    <input
+        type="checkbox"
+        id="isAwaken">
+
+    각성 완료
+
+</label>
+
+</div>
+
+
+
+<div class="admin-actions">
+
+<button
+    class="admin-btn add-btn"
+    onclick="newMember()">
+
+    ➕ 등록 모드
+
+</button>
+
+
+<button
+    class="admin-btn save-btn"
+    onclick="saveMember()">
+
+    💾 저장
+
+</button>
+
+
+<button
+    class="admin-btn cancel-btn"
+    onclick="clearForm()">
+
+    취소
+
+</button>
+
+
+<button
+    class="admin-btn backup-btn"
+    onclick="downloadBackup()">
+
+    📥 명단 백업
+
+</button>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+<footer>
+
+    © 2026 大韓民國 상단　|　현무서버 All rights reserved.
+
+</footer>
+
+
+
 <script>
 
-/* =========================================
-   Google Apps Script 주소
-========================================= */
+/* =====================================================
+   Google Apps Script
+===================================================== */
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbyj3TC79wglpRc2XgVUXdtHYm6cUFTeOB3AJ2dDo1FDxDRsXgD_EAcOVDqF1KVAysZLkA/exec";
 
 
-/* =========================================
-   데이터
-========================================= */
+/* 관리자 비밀번호 */
+
+const ADMIN_PASSWORD = "1357";
+
+
+/* 데이터 */
 
 let members = [];
 
@@ -765,9 +1122,9 @@ let editId = null;
 let adminMode = false;
 
 
-/* =========================================
-   페이지 시작
-========================================= */
+/* =====================================================
+   시작
+===================================================== */
 
 window.onload = function(){
 
@@ -776,29 +1133,36 @@ window.onload = function(){
 };
 
 
-/* =========================================
-   Google Sheet에서 명단 불러오기
-========================================= */
+/* =====================================================
+   Google Sheet 불러오기
+===================================================== */
 
 async function loadMembers(){
 
     try{
 
         const response =
-            await fetch(API_URL + "?t=" + Date.now());
+            await fetch(
+                API_URL +
+                "?t=" +
+                Date.now()
+            );
 
         const data =
             await response.json();
 
+
         if(Array.isArray(data)){
 
-            members = data.map(normalizeMember);
+            members =
+                data.map(normalizeMember);
 
         }else{
 
             members = [];
 
         }
+
 
         render();
 
@@ -807,7 +1171,7 @@ async function loadMembers(){
         console.error(error);
 
         alert(
-            "구글시트 연결에 실패했습니다.\n\n" +
+            "Google Sheet 연결 실패\n\n" +
             "Apps Script 배포 설정을 확인해주세요."
         );
 
@@ -816,9 +1180,9 @@ async function loadMembers(){
 }
 
 
-/* =========================================
+/* =====================================================
    데이터 정리
-========================================= */
+===================================================== */
 
 function normalizeMember(m){
 
@@ -826,7 +1190,7 @@ function normalizeMember(m){
 
         id:
             m.id ||
-            ("member_" + Date.now() + Math.random()),
+            createId(),
 
         name:
             m.name || "",
@@ -841,29 +1205,417 @@ function normalizeMember(m){
             m.duty || "",
 
         king:
-            m.king || "보유 없음",
+            m.king ||
+            "보유 없음",
 
         position:
-            m.position || "상단명단",
+            m.position ||
+            "상단명단",
 
         is2nd:
-            m.is2nd === true ||
-            m.is2nd === "true" ||
-            m.is2nd === "TRUE",
+            toBoolean(m.is2nd),
 
         isAwaken:
-            m.isAwaken === true ||
-            m.isAwaken === "true" ||
-            m.isAwaken === "TRUE"
+            toBoolean(m.isAwaken)
 
     };
 
 }
 
 
-/* =========================================
+/* =====================================================
+   TRUE / FALSE
+===================================================== */
+
+function toBoolean(value){
+
+    return (
+        value === true ||
+        value === "true" ||
+        value === "TRUE" ||
+        value === 1 ||
+        value === "1"
+    );
+
+}
+
+
+/* =====================================================
+   사천왕 클래스
+===================================================== */
+
+function kingClass(king){
+
+    switch(king){
+
+        case "지국천왕":
+            return "king-jiguk";
+
+        case "다문천왕":
+            return "king-damun";
+
+        case "광목천왕":
+            return "king-gwangmok";
+
+        case "증장천왕":
+            return "king-jeungjang";
+
+        default:
+            return "king-none";
+
+    }
+
+}
+
+
+/* =====================================================
+   화면 출력
+===================================================== */
+
+function render(){
+
+
+    const search =
+        document
+        .getElementById("search")
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const position =
+        document
+        .getElementById("positionFilter")
+        .value;
+
+
+    const king =
+        document
+        .getElementById("kingFilter")
+        .value;
+
+
+    const complete =
+        document
+        .getElementById("completeFilter")
+        .value;
+
+
+
+    const filtered =
+        members.filter(function(m){
+
+
+            const text =
+                (
+                    m.name +
+                    " " +
+                    m.subs +
+                    " " +
+                    m.duty
+                )
+                .toLowerCase();
+
+
+            if(
+                search &&
+                !text.includes(search)
+            ){
+
+                return false;
+
+            }
+
+
+            if(
+                position &&
+                m.position !== position
+            ){
+
+                return false;
+
+            }
+
+
+            if(
+                king &&
+                m.king !== king
+            ){
+
+                return false;
+
+            }
+
+
+            if(
+                complete === "2nd" &&
+                !m.is2nd
+            ){
+
+                return false;
+
+            }
+
+
+            if(
+                complete === "awaken" &&
+                !m.isAwaken
+            ){
+
+                return false;
+
+            }
+
+
+            return true;
+
+        });
+
+
+
+    /* =================================================
+       통계
+    ================================================= */
+
+
+    const executives =
+        members.filter(
+            m =>
+            m.position === "임원진"
+        );
+
+
+    const normal =
+        members.filter(
+            m =>
+            m.position !== "임원진"
+        );
+
+
+    document
+        .getElementById("totalCount")
+        .textContent =
+        members.length;
+
+
+    document
+        .getElementById("execCount")
+        .textContent =
+        executives.length;
+
+
+    document
+        .getElementById("normalCount")
+        .textContent =
+        normal.length;
+
+
+    document
+        .getElementById("execTitle")
+        .textContent =
+        executives.length;
+
+
+
+    /* =================================================
+       임원진 카드
+    ================================================= */
+
+
+    const execBox =
+        document
+        .getElementById("executives");
+
+
+    execBox.innerHTML = "";
+
+
+    executives.forEach(function(m){
+
+        execBox.innerHTML += `
+
+        <div class="exec-card">
+
+            <div class="exec-name">
+
+                👑 ${escapeHTML(m.name)}
+
+            </div>
+
+            <div class="exec-duty">
+
+                ${escapeHTML(
+                    m.duty ||
+                    "임원진"
+                )}
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+
+
+    /* =================================================
+       테이블
+    ================================================= */
+
+
+    const list =
+        document
+        .getElementById("memberList");
+
+
+    list.innerHTML = "";
+
+
+    filtered.forEach(function(m){
+
+
+        const king =
+            m.king ||
+            "보유 없음";
+
+
+        list.innerHTML += `
+
+        <tr>
+
+
+            <td>
+
+                ${escapeHTML(
+                    m.duty || "-"
+                )}
+
+            </td>
+
+
+            <td class="main-name">
+
+                ${escapeHTML(
+                    m.name
+                )}
+
+            </td>
+
+
+            <td>
+
+                ${escapeHTML(
+                    m.subs || "-"
+                )}
+
+            </td>
+
+
+            <td>
+
+                <span
+                    class="king-badge ${kingClass(king)}">
+
+                    ${escapeHTML(king)}
+
+                </span>
+
+            </td>
+
+
+            <td>
+
+                ${
+                    m.is2nd
+
+                    ?
+
+                    '<span class="complete">✓</span>'
+
+                    :
+
+                    '<span class="incomplete">-</span>'
+                }
+
+            </td>
+
+
+            <td>
+
+                ${
+                    m.isAwaken
+
+                    ?
+
+                    '<span class="complete">✓</span>'
+
+                    :
+
+                    '<span class="incomplete">-</span>'
+                }
+
+            </td>
+
+
+            <td>
+
+                ${escapeHTML(
+                    m.note || "-"
+                )}
+
+            </td>
+
+
+            <td>
+
+                ${
+                    adminMode
+
+                    ?
+
+                    `
+
+                    <button
+                        class="manage-btn edit-btn"
+                        onclick="editMember('${escapeHTML(m.id)}')">
+
+                        수정
+
+                    </button>
+
+
+                    <button
+                        class="manage-btn delete-btn"
+                        onclick="deleteMember('${escapeHTML(m.id)}')">
+
+                        삭제
+
+                    </button>
+
+                    `
+
+                    :
+
+                    "-"
+
+                }
+
+            </td>
+
+
+        </tr>
+
+        `;
+
+    });
+
+}
+
+
+/* =====================================================
    관리자 로그인
-========================================= */
+===================================================== */
 
 function adminLogin(){
 
@@ -881,10 +1633,17 @@ function adminLogin(){
 
     }
 
-    const password =
-        prompt("관리자 비밀번호를 입력하세요.");
 
-    if(password === "1234"){
+    const password =
+        prompt(
+            "관리자 비밀번호를 입력하세요."
+        );
+
+
+    if(
+        password ===
+        ADMIN_PASSWORD
+    ){
 
         adminMode = true;
 
@@ -892,327 +1651,160 @@ function adminLogin(){
             .getElementById("adminPanel")
             .classList.add("active");
 
-        alert("관리자 모드가 활성화되었습니다.");
 
-    }else{
+        alert(
+            "관리자 인증 완료!"
+        );
 
-        alert("비밀번호가 틀렸습니다.");
+
+        render();
+
+    }else if(password !== null){
+
+        alert(
+            "비밀번호가 틀렸습니다."
+        );
 
     }
 
 }
 
 
-/* =========================================
-   화면 렌더링
-========================================= */
+/* =====================================================
+   배너 관리자 버튼 클릭
+===================================================== */
 
-function render(){
+document
+    .querySelector(".header")
+    .addEventListener(
+        "click",
+        function(){
 
-    const search =
-        document
-        .getElementById("search")
-        .value
-        .toLowerCase()
-        .trim();
+            adminLogin();
 
-    const position =
-        document
-        .getElementById("positionFilter")
-        .value;
-
-    const king =
-        document
-        .getElementById("kingFilter")
-        .value;
-
-    const complete =
-        document
-        .getElementById("completeFilter")
-        .value;
+        }
+    );
 
 
-    let filtered =
-        members.filter(m => {
-
-            const text =
-                (
-                    m.name +
-                    " " +
-                    m.subs +
-                    " " +
-                    m.duty
-                ).toLowerCase();
-
-            if(
-                search &&
-                !text.includes(search)
-            ){
-                return false;
-            }
-
-            if(
-                position &&
-                m.position !== position
-            ){
-                return false;
-            }
-
-            if(
-                king &&
-                m.king !== king
-            ){
-                return false;
-            }
-
-            if(
-                complete === "2nd" &&
-                !m.is2nd
-            ){
-                return false;
-            }
-
-            if(
-                complete === "awaken" &&
-                !m.isAwaken
-            ){
-                return false;
-            }
-
-            return true;
-
-        });
-
-
-    /* 통계 */
-
-    const executives =
-        members.filter(
-            m => m.position === "임원진"
-        );
-
-    const normal =
-        members.filter(
-            m => m.position !== "임원진"
-        );
-
-
-    document
-        .getElementById("totalCount")
-        .textContent =
-        members.length;
-
-    document
-        .getElementById("execCount")
-        .textContent =
-        executives.length;
-
-    document
-        .getElementById("normalCount")
-        .textContent =
-        normal.length;
-
-
-    /* 임원진 카드 */
-
-    const execBox =
-        document.getElementById("executives");
-
-    execBox.innerHTML = "";
-
-    executives.forEach(m => {
-
-        execBox.innerHTML += `
-
-            <div class="exec-card">
-
-                <div class="exec-name">
-                    👑 ${escapeHTML(m.name)}
-                </div>
-
-                <div class="exec-duty">
-                    ${escapeHTML(m.duty || "임원진")}
-                </div>
-
-            </div>
-
-        `;
-
-    });
-
-
-    /* 명단 */
-
-    const list =
-        document.getElementById("memberList");
-
-    list.innerHTML = "";
-
-
-    filtered.forEach(m => {
-
-        list.innerHTML += `
-
-            <tr>
-
-                <td>
-                    ${escapeHTML(
-                        m.duty || "-"
-                    )}
-                </td>
-
-                <td class="name">
-                    ${escapeHTML(m.name)}
-                </td>
-
-                <td>
-                    ${escapeHTML(
-                        m.subs || "-"
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHTML(m.king)}
-                </td>
-
-                <td>
-                    ${
-                        m.is2nd
-                        ? '<span class="badge yes">완료</span>'
-                        : '<span class="badge no">미완료</span>'
-                    }
-                </td>
-
-                <td>
-                    ${
-                        m.isAwaken
-                        ? '<span class="badge yes">완료</span>'
-                        : '<span class="badge no">미완료</span>'
-                    }
-                </td>
-
-                <td>
-                    ${escapeHTML(
-                        m.note || "-"
-                    )}
-                </td>
-
-                <td>
-
-                    ${
-                        adminMode
-                        ? `
-                            <button
-                                class="btn btn-save"
-                                onclick="editMember('${m.id}')">
-                                수정
-                            </button>
-
-                            <button
-                                class="btn btn-delete"
-                                onclick="deleteMember('${m.id}')">
-                                삭제
-                            </button>
-                        `
-                        : "-"
-                    }
-
-                </td>
-
-            </tr>
-
-        `;
-
-    });
-
-}
-
-
-/* =========================================
-   새 회원
-========================================= */
+/* =====================================================
+   신규 등록
+===================================================== */
 
 function newMember(){
 
     editId = null;
 
-    document.getElementById("name").value = "";
-    document.getElementById("subs").value = "";
-    document.getElementById("duty").value = "";
-    document.getElementById("note").value = "";
+    clearForm();
 
-    document.getElementById("king").value =
-        "보유 없음";
-
-    document.getElementById("position").value =
-        "상단명단";
-
-    document.getElementById("is2nd").checked =
-        false;
-
-    document.getElementById("isAwaken").checked =
-        false;
+    document
+        .getElementById("adminPanel")
+        .classList.add("active");
 
 }
 
 
-/* =========================================
-   회원 수정
-========================================= */
+/* =====================================================
+   수정
+===================================================== */
 
 function editMember(id){
 
     const member =
         members.find(
-            m => String(m.id) === String(id)
+            m =>
+            String(m.id) ===
+            String(id)
         );
 
-    if(!member) return;
 
-    editId = id;
+    if(!member){
 
-    document.getElementById("name").value =
+        alert(
+            "회원을 찾을 수 없습니다."
+        );
+
+        return;
+
+    }
+
+
+    editId =
+        member.id;
+
+
+    document
+        .getElementById("name")
+        .value =
         member.name;
 
-    document.getElementById("subs").value =
+
+    document
+        .getElementById("subs")
+        .value =
         member.subs;
 
-    document.getElementById("duty").value =
+
+    document
+        .getElementById("duty")
+        .value =
         member.duty;
 
-    document.getElementById("note").value =
+
+    document
+        .getElementById("note")
+        .value =
         member.note;
 
-    document.getElementById("king").value =
+
+    document
+        .getElementById("king")
+        .value =
         member.king;
 
-    document.getElementById("position").value =
+
+    document
+        .getElementById("position")
+        .value =
         member.position;
 
-    document.getElementById("is2nd").checked =
+
+    document
+        .getElementById("is2nd")
+        .checked =
         member.is2nd;
 
-    document.getElementById("isAwaken").checked =
+
+    document
+        .getElementById("isAwaken")
+        .checked =
         member.isAwaken;
 
 
-    window.scrollTo({
-        top:0,
-        behavior:"smooth"
-    });
+    document
+        .getElementById("adminPanel")
+        .classList.add("active");
+
+
+    document
+        .getElementById("adminPanel")
+        .scrollIntoView({
+            behavior:"smooth"
+        });
 
 }
 
 
-/* =========================================
+/* =====================================================
    저장
-========================================= */
+===================================================== */
 
 async function saveMember(){
 
     if(!adminMode){
 
-        alert("관리자 모드가 필요합니다.");
+        alert(
+            "관리자 인증이 필요합니다."
+        );
 
         return;
 
@@ -1228,7 +1820,9 @@ async function saveMember(){
 
     if(!name){
 
-        alert("본캐 닉네임을 입력해주세요.");
+        alert(
+            "본캐 닉네임을 입력해주세요."
+        );
 
         return;
 
@@ -1284,20 +1878,18 @@ async function saveMember(){
     };
 
 
-    if(editId){
+    const index =
+        members.findIndex(
+            m =>
+            String(m.id) ===
+            String(member.id)
+        );
 
-        const index =
-            members.findIndex(
-                m =>
-                String(m.id) ===
-                String(editId)
-            );
 
-        if(index !== -1){
+    if(index >= 0){
 
-            members[index] = member;
-
-        }
+        members[index] =
+            member;
 
     }else{
 
@@ -1311,15 +1903,17 @@ async function saveMember(){
 }
 
 
-/* =========================================
+/* =====================================================
    삭제
-========================================= */
+===================================================== */
 
 async function deleteMember(id){
 
-    if(!confirm(
-        "정말 삭제하시겠습니까?"
-    )){
+    if(
+        !confirm(
+            "정말 삭제하시겠습니까?"
+        )
+    ){
 
         return;
 
@@ -1339,28 +1933,33 @@ async function deleteMember(id){
 }
 
 
-/* =========================================
+/* =====================================================
    Google Sheet 저장
-========================================= */
+===================================================== */
 
 async function saveAll(){
 
     try{
 
         const response =
-            await fetch(API_URL, {
+            await fetch(
+                API_URL,
+                {
 
-                method:"POST",
+                    method:"POST",
 
-                headers:{
-                    "Content-Type":
+                    headers:{
+                        "Content-Type":
                         "text/plain;charset=utf-8"
-                },
+                    },
 
-                body:
-                    JSON.stringify(members)
+                    body:
+                        JSON.stringify(
+                            members
+                        )
 
-            });
+                }
+            );
 
 
         const result =
@@ -1382,10 +1981,13 @@ async function saveAll(){
 
         editId = null;
 
+        clearForm();
+
         render();
 
+
         alert(
-            "저장되었습니다.\n" +
+            "저장 완료!\n\n" +
             "Google Sheet에도 반영되었습니다."
         );
 
@@ -1393,6 +1995,7 @@ async function saveAll(){
     }catch(error){
 
         console.error(error);
+
 
         alert(
             "저장에 실패했습니다.\n\n" +
@@ -1404,22 +2007,64 @@ async function saveAll(){
 }
 
 
-/* =========================================
-   취소
-========================================= */
+/* =====================================================
+   폼 초기화
+===================================================== */
 
-function cancelEdit(){
+function clearForm(){
 
     editId = null;
 
-    newMember();
+
+    document
+        .getElementById("name")
+        .value = "";
+
+
+    document
+        .getElementById("subs")
+        .value = "";
+
+
+    document
+        .getElementById("duty")
+        .value = "";
+
+
+    document
+        .getElementById("note")
+        .value = "";
+
+
+    document
+        .getElementById("king")
+        .value =
+        "보유 없음";
+
+
+    document
+        .getElementById("position")
+        .value =
+        "상단명단";
+
+
+    document
+        .getElementById("is2nd")
+        .checked =
+        false;
+
+
+    document
+        .getElementById("isAwaken")
+        .checked =
+        false;
 
 }
 
 
-/* =========================================
-   ID
-========================================= */
+/* =====================================================
+   ID 생성
+===================================================== */
 
 function createId(){
 
@@ -1433,21 +2078,23 @@ function createId(){
 }
 
 
-/* =========================================
+/* =====================================================
    백업
-========================================= */
+===================================================== */
 
 function downloadBackup(){
 
+    const data =
+        JSON.stringify(
+            members,
+            null,
+            2
+        );
+
+
     const blob =
         new Blob(
-            [
-                JSON.stringify(
-                    members,
-                    null,
-                    2
-                )
-            ],
+            [data],
             {
                 type:
                 "application/json"
@@ -1459,43 +2106,64 @@ function downloadBackup(){
         URL.createObjectURL(blob);
 
 
-    const a =
+    const link =
         document.createElement("a");
 
 
-    const date =
+    link.href =
+        url;
+
+
+    link.download =
+        "대한민국상단_명단백업_" +
         new Date()
         .toISOString()
-        .slice(0,10);
-
-
-    a.href = url;
-
-    a.download =
-        "대한민국상단_백업_" +
-        date +
+        .slice(0,10) +
         ".json";
 
 
-    a.click();
+    link.click();
+
 
     URL.revokeObjectURL(url);
 
 }
 
 
-/* =========================================
-   HTML 문자 안전 처리
-========================================= */
+/* =====================================================
+   HTML 안전 처리
+===================================================== */
 
 function escapeHTML(value){
 
-    return String(value)
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+    return String(
+        value ?? ""
+    )
+
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+
+    .replace(
+        /</g,
+        "&lt;"
+    )
+
+    .replace(
+        />/g,
+        "&gt;"
+    )
+
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 
 }
 
