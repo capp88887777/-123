@@ -244,24 +244,18 @@ async function loadMembers(){
     
     const rawList = Array.isArray(data) ? data : [];
     if(rawList.length > 0){
-      const uniqueMap = new Map();
-      rawList.forEach((m, idx) => {
-        const name = String(m.name || "").trim();
-        if(name && name !== "undefined" && name !== "null") {
-          uniqueMap.set(name, {
-            id: "member_" + (uniqueMap.size + 1),
-            name: name,
-            subs: String(m.subs || "").trim(),
-            note: String(m.note || "").trim(),
-            duty: String(m.duty || "").trim(),
-            king: String(m.king || "보유 없음").trim(),
-            position: String(m.position || "상단명단").trim(),
-            is2nd: Boolean(m.is2nd),
-            isAwaken: Boolean(m.isAwaken)
-          });
-        }
-      });
-      members = Array.from(uniqueMap.values());
+      members = rawList.map((m, idx) => ({
+        id: "member_" + (idx + 1),
+        position: String(m.position || "상단명단").trim(),
+        name: String(m.name || "").trim(),
+        subs: String(m.subs || "").trim(),
+        king: String(m.king || "보유 없음").trim(),
+        duty: String(m.duty || "").trim(),
+        is2nd: Boolean(m.is2nd),
+        isAwaken: Boolean(m.isAwaken),
+        note: String(m.note || "").trim()
+      })).filter(m => m.name !== "");
+
       try { localStorage.setItem("대한민국상단_캐시", JSON.stringify(members)); } catch(e){}
     }
 
@@ -381,25 +375,24 @@ async function saveMember(){
 
  const member={
    id: editId || ("member_" + (members.length + 1)),
-   name,
-   subs:document.getElementById("subs").value.trim(),
-   note:document.getElementById("note").value.trim(),
-   duty:document.getElementById("duty").value.trim(),
-   king:document.getElementById("king").value,
-   position:document.getElementById("position").value,
-   is2nd:document.getElementById("is2nd").checked,
-   isAwaken:document.getElementById("isAwaken").checked
+   position: document.getElementById("position").value,
+   name: name,
+   subs: document.getElementById("subs").value.trim(),
+   king: document.getElementById("king").value,
+   duty: document.getElementById("duty").value.trim(),
+   is2nd: document.getElementById("is2nd").checked,
+   isAwaken: document.getElementById("isAwaken").checked,
+   note: document.getElementById("note").value.trim()
  };
 
- const idx=members.findIndex(m=>String(m.name)===String(member.name));
- if(idx>=0){
-   members[idx]=member; // 이름이 같으면 덮어쓰기 (중복 방지)
- } else if(editId){
-   const editIdx=members.findIndex(m=>String(m.id)===String(editId));
-   if(editIdx>=0) members[editIdx]=member;
+ if(editId){
+   const idx = members.findIndex(m=>String(m.id)===String(editId));
+   if(idx>=0) members[idx] = member;
    else members.push(member);
- }else{
-   members.push(member);
+ } else {
+   const idx = members.findIndex(m=>String(m.name)===String(member.name));
+   if(idx>=0) members[idx] = member;
+   else members.push(member);
  }
 
  editId=null;
@@ -477,24 +470,17 @@ function restoreBackup(e){
      if(!Array.isArray(data))throw new Error("백업 파일 형식 오류");
      if(!confirm("현재 명단을 백업 파일 내용으로 교체하고 구글 시트에 저장할까요?"))return;
      
-     const uniqueMap = new Map();
-     data.forEach((m) => {
-       const name = String(m.name || "").trim();
-       if(name) {
-         uniqueMap.set(name, {
-           id: "member_" + (uniqueMap.size + 1),
-           name: name,
-           subs: String(m.subs || "").trim(),
-           note: String(m.note || "").trim(),
-           duty: String(m.duty || "").trim(),
-           king: String(m.king || "보유 없음").trim(),
-           position: String(m.position || "상단명단").trim(),
-           is2nd: Boolean(m.is2nd),
-           isAwaken: Boolean(m.isAwaken)
-         });
-       }
-     });
-     members = Array.from(uniqueMap.values());
+     members = data.map((m, idx) => ({
+       id: "member_" + (idx + 1),
+       position: String(m.position || "상단명단").trim(),
+       name: String(m.name || "").trim(),
+       subs: String(m.subs || "").trim(),
+       king: String(m.king || "보유 없음").trim(),
+       duty: String(m.duty || "").trim(),
+       is2nd: Boolean(m.is2nd),
+       isAwaken: Boolean(m.isAwaken),
+       note: String(m.note || "").trim()
+     })).filter(m => m.name !== "");
 
      render();
      updateCache();
