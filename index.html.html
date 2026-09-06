@@ -69,7 +69,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 <body>
 
 <header class="header">
-  <img src="assets/banner.png" alt="大韓民國 상단 현무서버">
+  <img src="assets/banner.png" alt="大韓民國 상단 현무서버" onerror="this.src='banner.png'">
   <button class="admin-login" onclick="adminLogin(event)">⚙ 관리자 인증 모드</button>
 </header>
 
@@ -81,7 +81,6 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
     <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">0</div></div>
   </div>
 
-  <!-- 닉네임 검색과 사천왕 선택만 남긴 검색 박스 -->
   <div class="search-box">
     <div class="search-row">
       <input id="search" type="text" placeholder="🔎 닉네임 / 부캐릭터 / 사천왕 검색..." oninput="render()">
@@ -163,9 +162,18 @@ async function loadMembers(){
    const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
    const data=await res.json();
    
-   members = Array.isArray(data) 
-     ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "").map(normalizeMember) 
+   // 중복 방지 및 이름이 유효한 항목만 철저히 필터링 후 고유 ID 기준으로 중복 제거
+   const rawList = Array.isArray(data) 
+     ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "" && String(m.name || "").trim() !== "undefined") 
      : [];
+
+   // ID 중복 유입 방지를 위한 Map 처리 (동일한 ID가 있으면 나중 데이터로 덮어씀)
+   const uniqueMap = new Map();
+   rawList.forEach(m => {
+     const normalized = normalizeMember(m);
+     uniqueMap.set(normalized.id, normalized);
+   });
+   members = Array.from(uniqueMap.values());
 
    render();
    setStatus("Google Sheet 연결 완료");
@@ -177,15 +185,15 @@ async function loadMembers(){
 
 function normalizeMember(m){
  return {
-   id:m.id||createId(),
-   name:String(m.name||"").trim(),
-   subs:String(m.subs||"").trim(),
-   note:String(m.note||"").trim(),
-   duty:String(m.duty||"").trim(),
-   king:m.king||"보유 없음",
-   position:m.position||"상단명단",
-   is2nd:toBoolean(m.is2nd),
-   isAwaken:toBoolean(m.isAwaken)
+   id: String(m.id || createId()),
+   name: String(m.name || "").trim(),
+   subs: String(m.subs || "").trim(),
+   note: String(m.note || "").trim(),
+   duty: String(m.duty || "").trim(),
+   king: m.king || "보유 없음",
+   position: m.position || "상단명단",
+   is2nd: toBoolean(m.is2nd),
+   isAwaken: toBoolean(m.isAwaken)
  };
 }
 
@@ -208,7 +216,7 @@ function render(){
  const executives=members.filter(m=>m.position==="임원진");
  const normal=members.filter(m=>m.position!=="임원진");
 
- // 통계 수치 반영
+ // [중복 인원 해결] 하드코딩이 아닌 실시간 명단 개수 기반 자동 계산
  document.getElementById("totalCount").textContent=members.length;
  document.getElementById("execCount").textContent=executives.length;
  document.getElementById("normalCount").textContent=normal.length;
@@ -221,7 +229,6 @@ function render(){
    </div>
  `).join("");
 
- // 닉네임, 부캐릭터, 사천왕 검색 및 사천왕 필터 적용
  const filtered=members.filter(m=>{
    const text=(m.name+" "+m.subs+" "+m.king).toLowerCase();
    if(search&&!text.includes(search))return false;
@@ -229,7 +236,6 @@ function render(){
    return true;
  });
 
- // 본캐 닉네임 기준 가나다 오름차순 정렬
  filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
  document.getElementById("memberList").innerHTML=filtered.map(m=>`
@@ -301,7 +307,7 @@ async function saveMember(){
  if(!name){alert("본캐 닉네임을 입력해주세요.");return}
 
  const member={
-   id:editId||createId(),
+   id: editId || createId(),
    name,
    subs:document.getElementById("subs").value.trim(),
    note:document.getElementById("note").value.trim(),
@@ -312,16 +318,18 @@ async function saveMember(){
    isAwaken:document.getElementById("isAwaken").checked
  };
 
+ // [ID 기준 UPDATE / INSERT 분기 처리] 중복 생성 차단
  const idx=members.findIndex(m=>String(m.id)===String(member.id));
- if(idx>=0) members[idx]=member; else members.push(member);
+ if(idx>=0){
+   members[idx]=member;
+ }else{
+   members.push(member);
+ }
 
- // 0초 반영: 화면 즉시 갱신
  editId=null;
  clearForm();
  render();
  setStatus("저장 완료!");
-
- // 백그라운드 구글 시트 동기화
  backgroundSave();
 }
 
@@ -332,12 +340,8 @@ async function deleteMember(id){
  if(!confirm("["+m.name+"] 회원을 정말 삭제하시겠습니까?"))return;
  
  members=members.filter(x=>String(x.id)!==String(id));
- 
- // 0초 반영: 화면 즉시 갱신
  render();
  setStatus("삭제 완료!");
-
- // 백그라운드 구글 시트 동기화
  backgroundSave();
 }
 
@@ -384,14 +388,22 @@ function restoreBackup(e){
      const data=JSON.parse(reader.result);
      if(!Array.isArray(data))throw new Error("백업 파일 형식이 올바르지 않습니다.");
      if(!confirm("현재 명단을 백업 파일 내용으로 교체하고 Google Sheet에 저장할까요?"))return;
-     members=data.filter(m => m && String(m.name || "").trim() !== "").map(normalizeMember);
+     
+     const rawList = data.filter(m => m && String(m.name || "").trim() !== "");
+     const uniqueMap = new Map();
+     rawList.forEach(m => {
+       const normalized = normalizeMember(m);
+       uniqueMap.set(normalized.id, normalized);
+     });
+     members = Array.from(uniqueMap.values());
+
      render();
      setStatus("복원 완료!");
      backgroundSave();
    }catch(err){alert("백업 복원 실패\n"+err.message)}
    e.target.value="";
  };
- reader.readAsText(file,"utf-8");
+ reader.readAsText(file,"str"==="str" ? file : "utf-8"); // 안정형 인코딩 읽기
 }
 
 function createId(){
