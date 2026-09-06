@@ -18,6 +18,14 @@ button,input,select{font-family:inherit}
 }
 .admin-login:hover{transform:translateX(-50%) translateY(-2px)}
 .container{width:min(1400px,96%);margin:15px auto 40px}
+
+/* 유튜브 음악 플레이어 스타일 바 */
+.music-bar{background:#fff;border-radius:16px;padding:10px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 14px rgba(80,50,120,.06);flex-wrap:wrap;gap:10px}
+.music-info{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#614495}
+.music-controls{display:flex;gap:6px}
+.m-btn{border:0;border-radius:8px;padding:6px 12px;background:#7250a4;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.m-btn:hover{background:#614495}
+
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
 .stat{background:#fff;border-radius:16px;padding:14px 10px;text-align:center;box-shadow:0 4px 14px rgba(80,50,120,.06)}
 .stat-title{color:#888;font-size:12px}.stat-number{margin-top:4px;font-size:24px;font-weight:900;color:#7250a4}
@@ -88,6 +96,20 @@ footer{text-align:center;color:#888;font-size:11px;padding:15px}
 </header>
 
 <div class="container">
+
+  <!-- 유튜브 BGM 플레이어 컨트롤 바 -->
+  <div class="music-bar">
+    <div class="music-info">
+      <span>🎵 BGM: 조선힙합 - 너의 차선</span>
+    </div>
+    <div class="music-controls">
+      <button class="m-btn" onclick="togglePlay()">⏸ 일시정지</button>
+      <button class="m-btn" onclick="toggleMute()">🔇 음소거 해제</button>
+      <button class="m-btn" onclick="restartSong()">🔄 처음부터</button>
+    </div>
+    <!-- 백그라운드에 숨겨진 유튜브 플레이어 프레임 -->
+    <div id="youtube-player" style="display:none;"></div>
+  </div>
 
   <div class="stats">
     <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">-</div></div>
@@ -161,14 +183,86 @@ footer{text-align:center;color:#888;font-size:11px;padding:15px}
 
 <footer>© 2026 大韓民國 상단 | 현무서버 All rights reserved.</footer>
 
+<!-- 유튜브 IFrame API 스크립트 로드 -->
+<script src="https://www.youtube.com/iframe_api"></script>
+
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbw9NKwiDZ30UhT1YaNVIebSruSM3tqbu--kkj6iNJTQeyEAr_u0OJO_rVcIEUemXkL7Bw/exec";
 const ADMIN_PASSWORD="1357";
 let members=[];
 let editId=null;
 let adminMode=false;
+let player;
+let isMuted = true;
+let isPlaying = true;
 
-// 구글 시트 데이터를 최우선으로 불러오도록 변경 (캐시가 숫자를 붙잡고 있던 문제 해결)
+// 유튜브 API가 준비되었을 때 호출되는 함수
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('youtube-player', {
+    height: '0',
+    width: '0',
+    videoId: 'PxmKaXqeK2s',
+    playerVars: {
+      'autoplay': 1,
+      'loop': 1,
+      'playlist': 'PxmKaXqeK2s', // 무한 반복을 위해 필수
+      'mute': 1, // 브라우저 정책 준수를 위해 최초 시작은 음소거
+      'controls': 0
+    },
+    events: {
+      'onReady': onPlayerReady,
+      'onStateChange': onPlayerStateChange
+    }
+  });
+}
+
+function onPlayerReady(event) {
+  event.target.playVideo();
+}
+
+function onPlayerStateChange(event) {
+  // 영상이 끝나면 무한 반복 (playlist 설정으로 자동 반복되지만 안전장치)
+  if (event.data === YT.PlayerState.ENDED) {
+    player.playVideo();
+  }
+}
+
+// 재생 / 일시정지 토글 버튼
+function togglePlay() {
+  if (!player) return;
+  const state = player.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) {
+    player.pauseVideo();
+    event.target.textContent = "▶ 재생하기";
+  } else {
+    player.playVideo();
+    event.target.textContent = "⏸ 일시정지";
+  }
+}
+
+// 음소거 / 소리 켜기 토글 버튼 (브라우저 정책 우회 후 소리 켤 때 유용)
+function toggleMute() {
+  if (!player) return;
+  if (isMuted) {
+    player.unMute();
+    player.setVolume(80); // 볼륨 80%
+    isMuted = false;
+    event.target.textContent = "🔊 소리 끄기";
+  } else {
+    player.mute();
+    isMuted = true;
+    event.target.textContent = "🔇 음소거 해제";
+  }
+}
+
+// 처음부터 다시 재생 버튼
+function restartSong() {
+  if (!player) return;
+  player.seekTo(0);
+  player.playVideo();
+}
+
+// 구글 시트 데이터를 최우선으로 불러오도록 변경
 window.addEventListener("load", loadMembers);
 
 async function loadMembers(){
@@ -200,7 +294,6 @@ async function loadMembers(){
     setStatus("동기화 완료");
   }catch(e){
     console.error(e);
-    // 통신 실패 시에만 기존 캐시 사용
     try {
       const cached = localStorage.getItem("대한민국상단_캐시");
       if(cached){
