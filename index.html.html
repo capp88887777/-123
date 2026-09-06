@@ -76,9 +76,9 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 <div class="container">
 
   <div class="stats">
-    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">0</div></div>
-    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">0</div></div>
-    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">0</div></div>
+    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">-</div></div>
+    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">-</div></div>
+    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">-</div></div>
   </div>
 
   <div class="search-box">
@@ -95,7 +95,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
     </div>
   </div>
 
-  <div class="section-title">👑 임원진 (<span id="execTitle">0</span>명)</div>
+  <div class="section-title">👑 임원진 (<span id="execTitle">-</span>명)</div>
   <div id="executives" class="executives"></div>
 
   <div class="section-title">📋 상단 명단</div>
@@ -162,12 +162,10 @@ async function loadMembers(){
    const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
    const data=await res.json();
    
-   // 중복 방지 및 이름이 유효한 항목만 철저히 필터링 후 고유 ID 기준으로 중복 제거
    const rawList = Array.isArray(data) 
      ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "" && String(m.name || "").trim() !== "undefined") 
      : [];
 
-   // ID 중복 유입 방지를 위한 Map 처리 (동일한 ID가 있으면 나중 데이터로 덮어씀)
    const uniqueMap = new Map();
    rawList.forEach(m => {
      const normalized = normalizeMember(m);
@@ -216,7 +214,6 @@ function render(){
  const executives=members.filter(m=>m.position==="임원진");
  const normal=members.filter(m=>m.position!=="임원진");
 
- // [중복 인원 해결] 하드코딩이 아닌 실시간 명단 개수 기반 자동 계산
  document.getElementById("totalCount").textContent=members.length;
  document.getElementById("execCount").textContent=executives.length;
  document.getElementById("normalCount").textContent=normal.length;
@@ -318,7 +315,6 @@ async function saveMember(){
    isAwaken:document.getElementById("isAwaken").checked
  };
 
- // [ID 기준 UPDATE / INSERT 분기 처리] 중복 생성 차단
  const idx=members.findIndex(m=>String(m.id)===String(member.id));
  if(idx>=0){
    members[idx]=member;
@@ -403,7 +399,7 @@ function restoreBackup(e){
    }catch(err){alert("백업 복원 실패\n"+err.message)}
    e.target.value="";
  };
- reader.readAsText(file,"str"==="str" ? file : "utf-8"); // 안정형 인코딩 읽기
+ reader.readAsText(file,"utf-8");
 }
 
 function createId(){
