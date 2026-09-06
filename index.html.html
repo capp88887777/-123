@@ -69,7 +69,7 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 <body>
 
 <header class="header">
-  <img src="assets/banner.png" alt="大韓民國 상단 현무서버">
+  <img src="https://i.ibb.co/60qY9s3/banner.png" alt="大韓民國 상단 현무서버">
   <button class="admin-login" onclick="adminLogin(event)">⚙ 관리자 인증 모드</button>
 </header>
 
@@ -81,7 +81,6 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
     <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">0</div></div>
   </div>
 
-  <!-- 닉네임 검색과 사천왕 선택만 남긴 검색 박스 -->
   <div class="search-box">
     <div class="search-row">
       <input id="search" type="text" placeholder="🔎 닉네임 / 부캐릭터 / 사천왕 검색..." oninput="render()">
@@ -163,8 +162,9 @@ async function loadMembers(){
    const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
    const data=await res.json();
    
+   // 이름이 존재하고 공백이 아닌 유효한 데이터만 확실하게 필터링
    members = Array.isArray(data) 
-     ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "").map(normalizeMember) 
+     ? data.filter(m => m && typeof m === 'object' && String(m.name || "").trim() !== "" && String(m.name || "").trim() !== "undefined" && String(m.name || "").trim() !== "null").map(normalizeMember) 
      : [];
 
    render();
@@ -221,7 +221,6 @@ function render(){
    </div>
  `).join("");
 
- // 닉네임, 부캐릭터, 사천왕 검색 및 사천왕 필터 적용
  const filtered=members.filter(m=>{
    const text=(m.name+" "+m.subs+" "+m.king).toLowerCase();
    if(search&&!text.includes(search))return false;
@@ -229,7 +228,6 @@ function render(){
    return true;
  });
 
- // 본캐 닉네임 기준 가나다 오름차순 정렬
  filtered.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
 
  document.getElementById("memberList").innerHTML=filtered.map(m=>`
@@ -315,13 +313,10 @@ async function saveMember(){
  const idx=members.findIndex(m=>String(m.id)===String(member.id));
  if(idx>=0) members[idx]=member; else members.push(member);
 
- // 0초 반영: 화면 즉시 갱신
  editId=null;
  clearForm();
  render();
  setStatus("저장 완료!");
-
- // 백그라운드 구글 시트 동기화
  backgroundSave();
 }
 
@@ -332,12 +327,8 @@ async function deleteMember(id){
  if(!confirm("["+m.name+"] 회원을 정말 삭제하시겠습니까?"))return;
  
  members=members.filter(x=>String(x.id)!==String(id));
- 
- // 0초 반영: 화면 즉시 갱신
  render();
  setStatus("삭제 완료!");
-
- // 백그라운드 구글 시트 동기화
  backgroundSave();
 }
 
