@@ -10,12 +10,7 @@ body{margin:0;background:#f7f3ff;color:#222;font-family:"Noto Sans KR","Malgun G
 button,input,select{font-family:inherit}
 .header{position:relative;width:100%;overflow:hidden;background:#eef4ff}
 .header img{display:block;width:100%;height:auto;max-height:390px;object-fit:cover;object-position:center top}
-.admin-login{
- position:absolute;left:50%;top:78%;bottom:auto;transform:translateX(-50%);z-index:20;
- border:0;border-radius:30px;padding:12px 25px;
- background:#d99b16;color:#fff;font-size:15px;font-weight:900;
- box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;z-index:20;white-space:nowrap;
-}
+.admin-login{position:absolute;left:50%;top:78%;transform:translateX(-50%);z-index:20;border:0;border-radius:30px;padding:12px 25px;background:#d99b16;color:#fff;font-size:15px;font-weight:900;box-shadow:0 5px 14px rgba(0,0,0,.2);cursor:pointer;white-space:nowrap}
 .admin-login:hover{transform:translateX(-50%) translateY(-2px)}
 .container{width:min(1400px,94%);margin:22px auto 45px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
@@ -43,8 +38,7 @@ tbody tr:hover td{background:#fcfaff}.main-name{font-weight:900;color:#4d3a69}
 .king-none{color:#888;border:2px solid #ccc;background:#f7f7f7}
 .complete{color:#098331;font-size:18px;font-weight:900}.incomplete{color:#aaa;font-size:15px}
 .manage-btn{border:0;border-radius:6px;padding:6px 10px;margin:1px;color:#fff;cursor:pointer;font-size:12px;font-weight:700}
-.edit-btn{background:#1769c2}.delete-btn{background:#e33434}
-.manage-btn:hover{opacity:.8}
+.edit-btn{background:#1769c2}.delete-btn{background:#e33434}.manage-btn:hover{opacity:.8}
 .admin-panel{display:none;margin-top:18px;background:linear-gradient(135deg,#fffdf7,#fff8ea);border:1px solid #e5d3ad;border-radius:12px;padding:18px;box-shadow:0 5px 18px rgba(80,50,120,.08)}
 .admin-panel.active{display:block}
 .admin-title{font-size:19px;font-weight:900;color:#62471f;margin-bottom:15px}
@@ -53,8 +47,12 @@ tbody tr:hover td{background:#fcfaff}.main-name{font-weight:900;color:#4d3a69}
 .admin-actions{display:flex;gap:8px;flex-wrap:wrap}
 .admin-btn{border:0;border-radius:8px;padding:10px 17px;cursor:pointer;font-weight:800}
 .add-btn{background:#c28b12;color:#fff}.save-btn{background:#208342;color:#fff}.cancel-btn{background:#999;color:#fff}.backup-btn{background:#3377ae;color:#fff}.restore-label{background:#6d55a5;color:#fff;border-radius:8px;padding:10px 17px;cursor:pointer;font-weight:800}
-footer{text-align:center;color:#888;font-size:12px;padding:20px}
 .status{text-align:center;color:#777;font-size:12px;margin:10px 0}
+.status.ok{color:#208342}.status.err{color:#c33;font-weight:700}
+.sync-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#bbb;margin-right:5px}.sync-dot.ok{background:#208342}.sync-dot.err{background:#d33}
+.empty{padding:35px;text-align:center;color:#999}
+.loading{padding:35px;text-align:center;color:#777}
+footer{text-align:center;color:#888;font-size:12px;padding:20px}
 @media(max-width:1100px){.executives{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:800px){
  .stats{grid-template-columns:1fr}.search-row{grid-template-columns:1fr}.executives{grid-template-columns:repeat(2,1fr)}
@@ -68,15 +66,15 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
 
 <header class="header">
   <img src="assets/banner.png" alt="大韓民國 상단 현무서버">
-  <button class="admin-login" onclick="adminLogin(event)">⚙ 관리자 인증 모드</button>
+  <button class="admin-login" id="adminLoginBtn" onclick="adminLogin(event)">⚙ 관리자 인증 모드</button>
 </header>
 
 <div class="container">
 
   <div class="stats">
-    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">0</div></div>
-    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">0</div></div>
-    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">0</div></div>
+    <div class="stat"><div class="stat-title">전체 인원</div><div class="stat-number" id="totalCount">—</div></div>
+    <div class="stat"><div class="stat-title">임원진</div><div class="stat-number" id="execCount">—</div></div>
+    <div class="stat"><div class="stat-title">일반 상단원</div><div class="stat-number" id="normalCount">—</div></div>
   </div>
 
   <div class="search-box">
@@ -103,8 +101,8 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
     </div>
   </div>
 
-  <div class="section-title">👑 임원진 (<span id="execTitle">0</span>명)</div>
-  <div id="executives" class="executives"></div>
+  <div class="section-title">👑 임원진 (<span id="execTitle">—</span>명)</div>
+  <div id="executives" class="executives"><div class="loading">명단을 불러오는 중...</div></div>
 
   <div class="section-title">📋 상단 명단</div>
   <div class="table-wrap">
@@ -115,12 +113,13 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
           <th>2차 완료</th><th>각성 완료</th><th>비고</th><th>관리</th>
         </tr>
       </thead>
-      <tbody id="memberList"></tbody>
+      <tbody id="memberList"><tr><td colspan="8" class="loading">명단을 불러오는 중...</td></tr></tbody>
     </table>
   </div>
 
   <div class="admin-panel" id="adminPanel">
     <div class="admin-title">🛠 상단원 정보 관리 <span id="modeText">(등록 모드)</span></div>
+
     <div class="form-grid">
       <select id="position">
         <option value="상단명단">일반 상단원</option>
@@ -138,10 +137,12 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
       <input id="duty" placeholder="직책">
       <input id="note" placeholder="비고">
     </div>
+
     <div class="check-area">
       <label><input type="checkbox" id="is2nd"> 2차 완료</label>
       <label><input type="checkbox" id="isAwaken"> 각성 완료</label>
     </div>
+
     <div class="admin-actions">
       <button class="admin-btn add-btn" onclick="newMember()">➕ 등록 모드</button>
       <button class="admin-btn save-btn" onclick="saveMember()">💾 저장</button>
@@ -149,284 +150,691 @@ footer{text-align:center;color:#888;font-size:12px;padding:20px}
       <button class="admin-btn backup-btn" onclick="downloadBackup()">📥 명단 백업</button>
       <label class="restore-label">📤 백업 복원<input id="restoreFile" type="file" accept=".json" hidden onchange="restoreBackup(event)"></label>
     </div>
-    <div class="status" id="saveStatus"></div>
+
+    <div class="status" id="saveStatus"><span class="sync-dot"></span>연결 확인 중...</div>
   </div>
+
+  <div class="status" id="connectionStatus"><span class="sync-dot"></span>Google Sheet 연결 확인 중...</div>
 </div>
 
 <footer>© 2026 大韓民國 상단 | 현무서버 All rights reserved.</footer>
 
 <script>
-const API_URL="https://script.google.com/macros/s/AKfycbyj3TC79wglpRc2XgVUXdtHYm6cUFTeOB3AJ2dDo1FDxDRsXgD_EAcOVDqF1KVAysZLkA/exec";
-const ADMIN_PASSWORD="1357";
-let members=[];
-let editId=null;
-let adminMode=false;
+/*************************************************
+ * GitHub index.html
+ * Google Sheet = 유일한 원본
+ *************************************************/
 
-window.addEventListener("load",loadMembers);
+/* ★ 사용 중인 Apps Script /exec 주소 */
+const API_URL="https://script.google.com/macros/s/AKfycbwZi_C97PZvJYA93A85WD7U17NBaMN652Qv2ZTcZo8hvjHAvhvpjMnMEvkiEMtuPuQmrw/exec";
 
-async function loadMembers(){
-  setStatus("명단을 불러오는 중...");
+const ADMIN_PASSWORD = "1357";
+
+let members = [];
+let editId = null;
+let adminMode = false;
+let loadedOnce = false;
+let loading = false;
+let firstErrorShown = false;
+
+/* =========================
+ * 시작 / 자동 동기화
+ * ========================= */
+window.addEventListener("load", function(){
+  loadMembers(true);
+  setInterval(function(){
+    if(document.visibilityState === "visible" && !loading) loadMembers(false);
+  }, 15000);
+});
+
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "visible" && !loading) loadMembers(false);
+});
+
+window.addEventListener("focus", function(){
+  if(!loading) loadMembers(false);
+});
+
+/* =========================
+ * 서버 GET
+ * ========================= */
+async function loadMembers(initial){
+  if(loading) return;
+  loading = true;
+
+  if(initial) setConnection("Google Sheet에서 명단을 불러오는 중...", "normal");
+  else setConnection("최신 명단 동기화 중...", "normal");
+
   try{
-    const res=await fetch(API_URL+"?t="+Date.now(),{cache:"no-store"});
-    const data=await res.json();
+    let data = await fetchJson();
 
-    // 빈 행/빈 회원 데이터 제거
-    // 본캐 닉네임이 없는 행은 실제 상단원으로 취급하지 않음
-    members=Array.isArray(data)
-      ? data.map(normalizeMember).filter(m => String(m.name || "").trim() !== "")
-      : [];
+    if(!data || data.result !== "success" || !Array.isArray(data.members)){
+      throw new Error((data && data.message) || "서버 응답 형식이 올바르지 않습니다.");
+    }
+
+    members = sanitizeServerMembers(data.members);
+    loadedOnce = true;
 
     render();
-    setStatus("Google Sheet 연결 완료");
-  }catch(e){
-    console.error(e);
-    setStatus("Google Sheet 연결 실패");
-    alert("Google Sheet에서 명단을 불러오지 못했습니다.\nApps Script 배포 상태를 확인해주세요.");
+    setConnection("Google Sheet 연결 완료 · " + formatTime(data.serverTime), "ok");
+    setStatus("최신 명단 동기화 완료");
+  }catch(err){
+    console.error(err);
+
+    // 실패했다고 members를 []로 만들지 않음
+    // 이미 정상 로드된 명단이 있다면 그대로 유지
+    if(!loadedOnce){
+      renderOffline();
+    }
+
+    setConnection("Google Sheet 연결 실패 · " + (err.message || "배포/권한 확인 필요"), "err");
+    setStatus("연결 실패");
+
+    if(initial && !firstErrorShown){
+      firstErrorShown = true;
+      alert(
+        "Google Sheet에서 명단을 불러오지 못했습니다.\n\n" +
+        "1. Apps Script 배포가 '나'로 실행되는지\n" +
+        "2. 액세스 권한이 '모든 사용자'인지\n" +
+        "3. index.html의 API_URL이 현재 /exec 주소와 같은지\n" +
+        "확인해주세요.\n\n" +
+        "기존 명단이 있다면 연결 실패로 0명으로 덮어쓰지 않습니다."
+      );
+    }
+  }finally{
+    loading = false;
   }
 }
 
-function normalizeMember(m){
-  return {
-    id:m.id||createId(),
-    name:m.name||"",
-    subs:m.subs||"",
-    note:m.note||"",
-    duty:m.duty||"",
-    king:m.king||"보유 없음",
-    position:m.position||"상단명단",
-    is2nd:toBoolean(m.is2nd),
-    isAwaken:toBoolean(m.isAwaken)
-  };
+async function fetchJson(){
+  const url = API_URL + "?t=" + Date.now();
+
+  // 1차: 일반 fetch
+  try{
+    const res = await fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      redirect: "follow"
+    });
+
+    if(!res.ok) throw new Error("HTTP " + res.status);
+
+    const text = await res.text();
+    if(!text) throw new Error("빈 응답");
+
+    return JSON.parse(text);
+  }catch(fetchError){
+    console.warn("일반 GET 실패:", fetchError);
+  }
+
+  // 2차: JSONP fallback
+  return await fetchJsonp();
+}
+
+function fetchJsonp(){
+  return new Promise(function(resolve, reject){
+    const callbackName = "__roster_callback_" + Date.now() + "_" + Math.floor(Math.random()*100000);
+    const script = document.createElement("script");
+    const timeout = setTimeout(function(){
+      cleanup();
+      reject(new Error("Apps Script 응답 시간이 초과되었습니다."));
+    }, 12000);
+
+    function cleanup(){
+      clearTimeout(timeout);
+      try{ delete window[callbackName]; }catch(_){}
+      if(script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[callbackName] = function(data){
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = function(){
+      cleanup();
+      reject(new Error("Apps Script에 접속할 수 없습니다."));
+    };
+
+    script.src = API_URL +
+      "?callback=" + encodeURIComponent(callbackName) +
+      "&t=" + Date.now();
+
+    document.body.appendChild(script);
+  });
+}
+
+/* =========================
+ * 데이터 정리
+ * ========================= */
+function sanitizeServerMembers(list){
+  const result = [];
+  const names = new Set();
+  const ids = new Set();
+
+  (Array.isArray(list) ? list : []).forEach(function(m){
+    if(!m) return;
+
+    const name = String(m.name || "").trim();
+    if(!name) return;
+
+    const id = String(m.id || "").trim();
+    const nameKey = name.toLowerCase().replace(/\s+/g, " ");
+
+    if(names.has(nameKey)) return;
+    if(id && ids.has(id)) return;
+
+    const member = {
+      id: id,
+      name: name,
+      subs: String(m.subs || "").trim(),
+      note: String(m.note || "").trim(),
+      duty: String(m.duty || "").trim(),
+      king: String(m.king || "보유 없음").trim() || "보유 없음",
+      position: m.position === "임원진" ? "임원진" : "상단명단",
+      is2nd: toBoolean(m.is2nd),
+      isAwaken: toBoolean(m.isAwaken)
+    };
+
+    result.push(member);
+    names.add(nameKey);
+    if(id) ids.add(id);
+  });
+
+  return result;
 }
 
 function toBoolean(v){
-  return v===true||v==="true"||v==="TRUE"||v===1||v==="1";
+  return v === true ||
+    v === 1 ||
+    v === "1" ||
+    String(v).toUpperCase() === "TRUE" ||
+    String(v).toUpperCase() === "YES" ||
+    String(v).toUpperCase() === "Y" ||
+    String(v).toUpperCase() === "ON" ||
+    String(v).toUpperCase() === "O" ||
+    v === "완료";
 }
 
-function kingClass(k){
-  if(k==="지국천왕")return"king-jiguk";
-  if(k==="다문천왕")return"king-damun";
-  if(k==="광목천왕")return"king-gwangmok";
-  if(k==="증장천왕")return"king-jeungjang";
-  return"king-none";
-}
-
+/* =========================
+ * 화면
+ * ========================= */
 function render(){
-  const search=document.getElementById("search").value.trim().toLowerCase();
-  const position=document.getElementById("positionFilter").value;
-  const king=document.getElementById("kingFilter").value;
-  const complete=document.getElementById("completeFilter").value;
+  const validMembers = members.filter(function(m){
+    return String(m.name || "").trim() !== "";
+  });
 
-  // 본캐 닉네임이 실제로 입력된 회원만 인원수에 포함
-  // Google Sheet의 빈 행/빈 데이터가 있어도 인원수가 늘어나지 않도록 처리
-  const validMembers = members.filter(m => String(m.name || "").trim() !== "");
+  const executives = validMembers.filter(function(m){
+    return m.position === "임원진";
+  });
 
-  const executives=validMembers.filter(m=>m.position==="임원진");
-  const normal=validMembers.filter(m=>m.position!=="임원진");
+  const normal = validMembers.filter(function(m){
+    return m.position !== "임원진";
+  });
 
-  document.getElementById("totalCount").textContent=validMembers.length;
-  document.getElementById("execCount").textContent=executives.length;
-  document.getElementById("normalCount").textContent=normal.length;
-  document.getElementById("execTitle").textContent=executives.length;
+  document.getElementById("totalCount").textContent = validMembers.length;
+  document.getElementById("execCount").textContent = executives.length;
+  document.getElementById("normalCount").textContent = normal.length;
+  document.getElementById("execTitle").textContent = executives.length;
 
-  document.getElementById("executives").innerHTML=executives.map(m=>`
-    <div class="exec-card">
-      <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
-      <div class="exec-duty">${escapeHTML(m.duty||"임원진")}</div>
-    </div>
-  `).join("");
+  document.getElementById("executives").innerHTML =
+    executives.length
+      ? executives.map(function(m){
+          return `
+            <div class="exec-card">
+              <div class="exec-name">👑 ${escapeHTML(m.name)}</div>
+              <div class="exec-duty">${escapeHTML(m.duty || "임원진")}</div>
+            </div>
+          `;
+        }).join("")
+      : '<div class="empty">등록된 임원진이 없습니다.</div>';
 
-  const filtered=members.filter(m=>{
-    const text=(m.name+" "+m.subs+" "+m.duty).toLowerCase();
-    if(search&&!text.includes(search))return false;
-    if(position&&m.position!==position)return false;
-    if(king&&m.king!==king)return false;
-    if(complete==="2nd"&&!m.is2nd)return false;
-    if(complete==="awaken"&&!m.isAwaken)return false;
+  const search = document.getElementById("search").value.trim().toLowerCase();
+  const position = document.getElementById("positionFilter").value;
+  const king = document.getElementById("kingFilter").value;
+  const complete = document.getElementById("completeFilter").value;
+
+  const filtered = validMembers.filter(function(m){
+    const text = (
+      m.name + " " +
+      m.subs + " " +
+      m.duty + " " +
+      m.note
+    ).toLowerCase();
+
+    if(search && !text.includes(search)) return false;
+    if(position && m.position !== position) return false;
+    if(king && m.king !== king) return false;
+    if(complete === "2nd" && !m.is2nd) return false;
+    if(complete === "awaken" && !m.isAwaken) return false;
+
     return true;
   });
 
-  document.getElementById("memberList").innerHTML=filtered.map(m=>`
-    <tr>
-      <td>${escapeHTML(m.duty||"-")}</td>
-      <td class="main-name">${escapeHTML(m.name)}</td>
-      <td>${escapeHTML(m.subs||"-")}</td>
-      <td><span class="king-badge ${kingClass(m.king)}">${escapeHTML(m.king||"보유 없음")}</span></td>
-      <td>${m.is2nd?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
-      <td>${m.isAwaken?'<span class="complete">✓</span>':'<span class="incomplete">-</span>'}</td>
-      <td>${escapeHTML(m.note||"-")}</td>
-      <td>${adminMode?
-        `<button class="manage-btn edit-btn" onclick="editMember('${escapeJS(m.id)}')">수정</button>
-         <button class="manage-btn delete-btn" onclick="deleteMember('${escapeJS(m.id)}')">삭제</button>`:"-"}</td>
-    </tr>
-  `).join("");
+  document.getElementById("memberList").innerHTML =
+    filtered.length
+      ? filtered.map(function(m){
+          return `
+            <tr>
+              <td>${escapeHTML(m.duty || "-")}</td>
+              <td class="main-name">${escapeHTML(m.name)}</td>
+              <td>${escapeHTML(m.subs || "-")}</td>
+              <td>
+                <span class="king-badge ${kingClass(m.king)}">
+                  ${escapeHTML(m.king || "보유 없음")}
+                </span>
+              </td>
+              <td>${m.is2nd ? '<span class="complete">✓</span>' : '<span class="incomplete">-</span>'}</td>
+              <td>${m.isAwaken ? '<span class="complete">✓</span>' : '<span class="incomplete">-</span>'}</td>
+              <td>${escapeHTML(m.note || "-")}</td>
+              <td>
+                ${adminMode
+                  ? `
+                    <button class="manage-btn edit-btn" onclick="editMember('${escapeJS(m.id)}')">수정</button>
+                    <button class="manage-btn delete-btn" onclick="deleteMember('${escapeJS(m.id)}')">삭제</button>
+                  `
+                  : "-"
+                }
+              </td>
+            </tr>
+          `;
+        }).join("")
+      : '<tr><td colspan="8" class="empty">검색 결과가 없습니다.</td></tr>';
 }
 
+function renderOffline(){
+  document.getElementById("totalCount").textContent = "—";
+  document.getElementById("execCount").textContent = "—";
+  document.getElementById("normalCount").textContent = "—";
+  document.getElementById("execTitle").textContent = "—";
+
+  document.getElementById("executives").innerHTML =
+    '<div class="empty">Google Sheet 연결 실패</div>';
+
+  document.getElementById("memberList").innerHTML =
+    '<tr><td colspan="8" class="empty">Google Sheet 연결 후 명단이 표시됩니다.</td></tr>';
+}
+
+function kingClass(k){
+  if(k === "지국천왕") return "king-jiguk";
+  if(k === "다문천왕") return "king-damun";
+  if(k === "광목천왕") return "king-gwangmok";
+  if(k === "증장천왕") return "king-jeungjang";
+  return "king-none";
+}
+
+/* =========================
+ * 관리자
+ * ========================= */
 function adminLogin(e){
-  if(e)e.stopPropagation();
+  if(e) e.stopPropagation();
+
   if(adminMode){
-    adminMode=false;
+    adminMode = false;
     document.getElementById("adminPanel").classList.remove("active");
+    document.getElementById("adminLoginBtn").textContent = "⚙ 관리자 인증 모드";
     clearForm();
     render();
     return;
   }
-  const pw=prompt("관리자 비밀번호를 입력하세요.");
-  if(pw===ADMIN_PASSWORD){
-    adminMode=true;
+
+  const pw = prompt("관리자 비밀번호를 입력하세요.");
+
+  if(pw === ADMIN_PASSWORD){
+    adminMode = true;
     document.getElementById("adminPanel").classList.add("active");
-    document.getElementById("adminPanel").scrollIntoView({behavior:"smooth",block:"start"});
+    document.getElementById("adminLoginBtn").textContent = "🔓 관리자 모드 종료";
+    document.getElementById("adminPanel").scrollIntoView({behavior:"smooth", block:"start"});
     render();
     alert("관리자 인증 완료!");
-  }else if(pw!==null){
+  }else if(pw !== null){
     alert("비밀번호가 틀렸습니다.");
   }
 }
 
 function newMember(){
-  if(!adminMode){alert("먼저 관리자 인증을 해주세요.");return}
-  editId=null;
+  if(!adminMode){
+    alert("먼저 관리자 인증을 해주세요.");
+    return;
+  }
+
+  editId = null;
   clearForm();
   document.getElementById("adminPanel").classList.add("active");
-  document.getElementById("modeText").textContent="(등록 모드)";
+  document.getElementById("modeText").textContent = "(등록 모드)";
+  document.getElementById("name").focus();
 }
 
 function editMember(id){
-  if(!adminMode){alert("관리자 인증이 필요합니다.");return}
-  const m=members.find(x=>String(x.id)===String(id));
-  if(!m)return alert("회원을 찾을 수 없습니다.");
-  editId=m.id;
-  document.getElementById("position").value=m.position;
-  document.getElementById("name").value=m.name;
-  document.getElementById("subs").value=m.subs;
-  document.getElementById("king").value=m.king;
-  document.getElementById("duty").value=m.duty;
-  document.getElementById("note").value=m.note;
-  document.getElementById("is2nd").checked=m.is2nd;
-  document.getElementById("isAwaken").checked=m.isAwaken;
-  document.getElementById("modeText").textContent="(수정 모드)";
+  if(!adminMode){
+    alert("관리자 인증이 필요합니다.");
+    return;
+  }
+
+  const m = members.find(function(x){
+    return String(x.id) === String(id);
+  });
+
+  if(!m){
+    alert("회원을 찾을 수 없습니다.\n최신 명단을 다시 불러옵니다.");
+    loadMembers(false);
+    return;
+  }
+
+  editId = m.id;
+
+  document.getElementById("position").value = m.position;
+  document.getElementById("name").value = m.name;
+  document.getElementById("subs").value = m.subs;
+  document.getElementById("king").value = m.king;
+  document.getElementById("duty").value = m.duty;
+  document.getElementById("note").value = m.note;
+  document.getElementById("is2nd").checked = m.is2nd;
+  document.getElementById("isAwaken").checked = m.isAwaken;
+  document.getElementById("modeText").textContent = "(수정 모드)";
+
   document.getElementById("adminPanel").classList.add("active");
-  document.getElementById("adminPanel").scrollIntoView({behavior:"smooth"});
+  document.getElementById("adminPanel").scrollIntoView({behavior:"smooth", block:"start"});
 }
 
 async function saveMember(){
-  if(!adminMode){alert("먼저 관리자 인증을 해주세요.");return}
-  const name=document.getElementById("name").value.trim();
-  if(!name){alert("본캐 닉네임을 입력해주세요.");return}
+  if(!adminMode){
+    alert("먼저 관리자 인증을 해주세요.");
+    return;
+  }
 
-  // 동일한 본캐 닉네임 중복 등록 방지 (수정 중인 본인은 제외)
-  const duplicate = members.find(m =>
-    String(m.name || "").trim() === name &&
-    String(m.id) !== String(editId || "")
-  );
+  const name = document.getElementById("name").value.trim();
 
-  if (duplicate) {
+  if(!name){
+    alert("본캐 닉네임을 입력해주세요.");
+    return;
+  }
+
+  const duplicate = members.find(function(m){
+    return String(m.name || "").trim().toLowerCase() === name.toLowerCase() &&
+           String(m.id) !== String(editId || "");
+  });
+
+  if(duplicate){
     alert("이미 등록된 본캐 닉네임입니다.\n\n[" + name + "]");
     return;
   }
 
-  const member={
-    id:editId||createId(),
-    name,
-    subs:document.getElementById("subs").value.trim(),
-    note:document.getElementById("note").value.trim(),
-    duty:document.getElementById("duty").value.trim(),
-    king:document.getElementById("king").value,
-    position:document.getElementById("position").value,
-    is2nd:document.getElementById("is2nd").checked,
-    isAwaken:document.getElementById("isAwaken").checked
+  const member = {
+    id: editId || "",
+    name: name,
+    subs: document.getElementById("subs").value.trim(),
+    note: document.getElementById("note").value.trim(),
+    duty: document.getElementById("duty").value.trim(),
+    king: document.getElementById("king").value,
+    position: document.getElementById("position").value,
+    is2nd: document.getElementById("is2nd").checked,
+    isAwaken: document.getElementById("isAwaken").checked
   };
 
-  const idx=members.findIndex(m=>String(m.id)===String(member.id));
-  if(idx>=0)members[idx]=member;else members.push(member);
-  await saveAll();
-}
+  setStatus(editId ? "수정 저장 중..." : "등록 저장 중...");
 
-async function deleteMember(id){
-  if(!adminMode){alert("관리자 인증이 필요합니다.");return}
-  const m=members.find(x=>String(x.id)===String(id));
-  if(!m)return;
-  if(!confirm("["+m.name+"] 회원을 정말 삭제하시겠습니까?"))return;
-  members=members.filter(x=>String(x.id)!==String(id));
-  await saveAll();
-}
-
-async function saveAll(){
-  setStatus("Google Sheet에 저장 중...");
   try{
-    const res=await fetch(API_URL,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify(members)
-    });
-    const result=await res.json();
-    if(result.result!=="success")throw new Error(result.message||"저장 실패");
-    editId=null;
+    // ★ 전체 members 배열을 보내지 않습니다.
+    // 서버가 현재 Google Sheet를 다시 읽고 1건만 처리합니다.
+    const result = await postAction(
+      editId ? "update" : "add",
+      editId ? {member:member} : {member:member}
+    );
+
+    applyServerResult(result);
+
+    editId = null;
     clearForm();
     render();
+
     setStatus("Google Sheet 저장 완료");
-    alert("저장 완료!\nGoogle Sheet에도 반영되었습니다.");
-  }catch(e){
-    console.error(e);
+    alert("저장 완료!\nGoogle Sheet에 반영되었습니다.");
+  }catch(err){
+    console.error(err);
     setStatus("저장 실패");
-    alert("저장에 실패했습니다.\n"+e.message);
+
+    // 저장 실패 시 화면의 members를 임의로 변경하지 않음
+    alert("저장에 실패했습니다.\n\n" + (err.message || "알 수 없는 오류"));
+    loadMembers(false);
   }
 }
 
-function clearForm(){
-  editId=null;
-  document.getElementById("position").value="상단명단";
-  document.getElementById("name").value="";
-  document.getElementById("subs").value="";
-  document.getElementById("king").value="보유 없음";
-  document.getElementById("duty").value="";
-  document.getElementById("note").value="";
-  document.getElementById("is2nd").checked=false;
-  document.getElementById("isAwaken").checked=false;
-  document.getElementById("modeText").textContent="(등록 모드)";
+async function deleteMember(id){
+  if(!adminMode){
+    alert("관리자 인증이 필요합니다.");
+    return;
+  }
+
+  const m = members.find(function(x){
+    return String(x.id) === String(id);
+  });
+
+  if(!m) return;
+
+  if(!confirm("[" + m.name + "] 회원을 정말 삭제하시겠습니까?")) return;
+
+  setStatus("삭제 저장 중...");
+
+  try{
+    const result = await postAction("delete", {id:id});
+    applyServerResult(result);
+
+    render();
+    setStatus("삭제 완료");
+    alert("삭제 완료!\nGoogle Sheet에도 반영되었습니다.");
+  }catch(err){
+    console.error(err);
+    setStatus("삭제 실패");
+    alert("삭제에 실패했습니다.\n\n" + (err.message || "알 수 없는 오류"));
+    loadMembers(false);
+  }
 }
 
+/* =========================
+ * 서버 POST
+ * ========================= */
+async function postAction(action, payload){
+  const body = Object.assign({action:action}, payload || {});
+
+  const res = await fetch(API_URL + "?t=" + Date.now(), {
+    method:"POST",
+    headers:{
+      "Content-Type":"text/plain;charset=utf-8"
+    },
+    body:JSON.stringify(body),
+    cache:"no-store",
+    redirect:"follow"
+  });
+
+  const text = await res.text();
+
+  if(!res.ok){
+    throw new Error("HTTP " + res.status);
+  }
+
+  let result;
+  try{
+    result = JSON.parse(text);
+  }catch(e){
+    throw new Error("Apps Script가 JSON 응답을 반환하지 않았습니다.");
+  }
+
+  if(!result || result.result !== "success"){
+    throw new Error((result && result.message) || "서버 저장 실패");
+  }
+
+  return result;
+}
+
+function applyServerResult(result){
+  if(!result || result.result !== "success" || !Array.isArray(result.members)){
+    throw new Error("서버에서 최신 명단을 받지 못했습니다.");
+  }
+
+  members = sanitizeServerMembers(result.members);
+  loadedOnce = true;
+}
+
+/* =========================
+ * 폼
+ * ========================= */
+function clearForm(){
+  editId = null;
+
+  document.getElementById("position").value = "상단명단";
+  document.getElementById("name").value = "";
+  document.getElementById("subs").value = "";
+  document.getElementById("king").value = "보유 없음";
+  document.getElementById("duty").value = "";
+  document.getElementById("note").value = "";
+  document.getElementById("is2nd").checked = false;
+  document.getElementById("isAwaken").checked = false;
+  document.getElementById("modeText").textContent = "(등록 모드)";
+}
+
+/* =========================
+ * 백업 / 복원
+ * ========================= */
 function downloadBackup(){
-  const blob=new Blob([JSON.stringify(members,null,2)],{type:"application/json;charset=utf-8"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download="대한민국상단_명단백업_"+new Date().toISOString().slice(0,10)+".json";
-  document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  if(!loadedOnce){
+    alert("Google Sheet와 연결된 후 백업할 수 있습니다.");
+    return;
+  }
+
+  const backup = {
+    version:1,
+    exportedAt:new Date().toISOString(),
+    members:members
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(backup, null, 2)],
+    {type:"application/json;charset=utf-8"}
+  );
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download =
+    "대한민국상단_명단백업_" +
+    new Date().toISOString().slice(0,10) +
+    ".json";
+
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+
+  setStatus("명단 백업 파일 생성 완료");
 }
 
 function restoreBackup(e){
-  const file=e.target.files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=async()=>{
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = async function(){
     try{
-      const data=JSON.parse(reader.result);
-      if(!Array.isArray(data))throw new Error("백업 파일 형식이 올바르지 않습니다.");
-      if(!confirm("현재 명단을 백업 파일 내용으로 교체하고 Google Sheet에 저장할까요?"))return;
-      members=data.map(normalizeMember);
-      await saveAll();
-    }catch(err){alert("백업 복원 실패\n"+err.message)}
-    e.target.value="";
+      const parsed = JSON.parse(reader.result);
+
+      let data;
+
+      // 새 백업 형식
+      if(parsed && Array.isArray(parsed.members)){
+        data = parsed.members;
+      }
+      // 예전 백업 형식
+      else if(Array.isArray(parsed)){
+        data = parsed;
+      }
+      else{
+        throw new Error("백업 파일 형식이 올바르지 않습니다.");
+      }
+
+      data = sanitizeServerMembers(data);
+
+      if(!confirm(
+        "백업 파일의 " + data.length + "명을\n" +
+        "현재 Google Sheet 명단으로 복원하시겠습니까?\n\n" +
+        "복원 전에 현재 명단은 서버 자동 백업됩니다."
+      )){
+        return;
+      }
+
+      setStatus("백업 복원 중...");
+
+      const result = await postAction("restore", {members:data});
+      applyServerResult(result);
+
+      render();
+      setStatus("백업 복원 완료");
+      alert("백업 복원 완료!\nGoogle Sheet에 반영되었습니다.");
+    }catch(err){
+      console.error(err);
+      setStatus("백업 복원 실패");
+      alert("백업 복원 실패\n\n" + (err.message || "알 수 없는 오류"));
+    }finally{
+      e.target.value = "";
+    }
   };
-  reader.readAsText(file,"utf-8");
+
+  reader.readAsText(file, "utf-8");
 }
 
-function createId(){
-  return "member_"+Date.now()+"_"+Math.floor(Math.random()*100000);
-}
+/* =========================
+ * 상태 / 유틸
+ * ========================= */
+function setConnection(text, type){
+  const el = document.getElementById("connectionStatus");
+  if(!el) return;
 
-function escapeHTML(v){
-  return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-}
-
-function escapeJS(v){
-  return String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,'\\"');
+  el.className = "status " + (type === "ok" ? "ok" : type === "err" ? "err" : "");
+  el.innerHTML =
+    '<span class="sync-dot ' +
+    (type === "ok" ? "ok" : type === "err" ? "err" : "") +
+    '"></span>' +
+    escapeHTML(text);
 }
 
 function setStatus(text){
-  const el=document.getElementById("saveStatus");
-  if(el)el.textContent=text;
+  const el = document.getElementById("saveStatus");
+  if(el){
+    el.innerHTML = '<span class="sync-dot"></span>' + escapeHTML(text);
+  }
+}
+
+function formatTime(ms){
+  if(!ms) return "";
+
+  const d = new Date(Number(ms));
+
+  if(isNaN(d.getTime())) return "";
+
+  return d.toLocaleTimeString("ko-KR", {
+    hour:"2-digit",
+    minute:"2-digit",
+    second:"2-digit"
+  });
+}
+
+function escapeHTML(v){
+  return String(v ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function escapeJS(v){
+  return String(v ?? "")
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'")
+    .replace(/\r/g,"\\r")
+    .replace(/\n/g,"\\n");
 }
 </script>
 </body>
